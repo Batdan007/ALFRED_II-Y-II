@@ -1,0 +1,66 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment files (API keys, secrets)
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Node modules
+node_modules/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+
+# Database files (keep local only)
+*.db
+*.db.backup
+*.db.encrypted
+
+# Large binary files
+*.pyd
+*.dll
+*.exe
+*.node
+
+# Audio test files
+*.mp3
+*.wav
+
+# Image files (except documentation)
+*.jpg
+*.jpeg
+*.png
+!docs/*.png
+!docs/*.jpg
+
+# Temporary files
+nul
+To
+wsl

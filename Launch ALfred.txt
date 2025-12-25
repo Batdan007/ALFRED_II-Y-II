@@ -1,0 +1,5 @@
+Launch ALfred
+
+cd C:\Users\danie\Projects\ALFRED_SYSTEMS\ALFRED_UBX
+  "C:\Program Files\Python311\python.exe" alfred_terminal.py
+

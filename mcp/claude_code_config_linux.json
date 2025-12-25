@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "alfred-brain": {
+      "command": "python3",
+      "args": ["-m", "mcp.alfred_mcp_server"],
+      "cwd": "/home/user/ALFRED_UBX",
+      "env": {
+        "ALFRED_HOME": "/home/user/.alfred",
+        "PYTHONPATH": "/home/user/ALFRED_UBX"
+      },
+      "description": "ALFRED's persistent memory brain with voice, privacy, and AI orchestration"
+    },
+    "camdan-engineering": {
+      "command": "python3",
+      "args": ["-m", "mcp.camdan_mcp_server"],
+      "cwd": "/home/user/ALFRED_UBX",
+      "env": {
+        "ALFRED_HOME": "/home/user/.alfred",
+        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "CAMDAN_API_URL": "http://localhost:8001"
+      },
+      "description": "CAMDAN engineering system for building codes, cost estimation, and compliance",
+      "disabled": false
+    },
+    "strix-security": {
+      "command": "python3",
+      "args": ["-m", "mcp.strix_mcp_server"],
+      "cwd": "/home/user/ALFRED_UBX",
+      "env": {
+        "ALFRED_HOME": "/home/user/.alfred",
+        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "STRIX_LLM": "ollama/dolphin-mixtral:8x7b"
+      },
+      "description": "Strix AI-powered security testing and vulnerability scanning",
+      "disabled": false
+    },
+    "dontlookup-dvbs2": {
+      "command": "python3",
+      "args": ["-m", "mcp.dontlookup_mcp_server"],
+      "cwd": "/home/user/ALFRED_UBX",
+      "env": {
+        "ALFRED_HOME": "/home/user/.alfred",
+        "PYTHONPATH": "/home/user/ALFRED_UBX"
+      },
+      "description": "DontLookUp DVB-S2 satellite communication parser",
+      "disabled": false
+    },
+    "caipe-agents": {
+      "command": "python3",
+      "args": ["-m", "mcp.caipe_mcp_server"],
+      "cwd": "/home/user/ALFRED_UBX",
+      "env": {
+        "ALFRED_HOME": "/home/user/.alfred",
+        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "A2A_TRANSPORT": "slim"
+      },
+      "description": "CAIPE multi-agent system (GitHub, ArgoCD, Jira, Slack, PagerDuty, etc.)",
+      "disabled": false
+    }
+  }
+}

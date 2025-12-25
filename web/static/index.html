@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ALFRED">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <title>ALFRED - AI Butler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-chat: #0f0f23;
+            --accent: #e94560;
+            --accent-glow: rgba(233, 69, 96, 0.3);
+            --text-primary: #eee;
+            --text-secondary: #888;
+            --user-bubble: #4a4a6a;
+            --alfred-bubble: #2a2a4a;
+            --border: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            padding-top: calc(12px + env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .header-info h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-info .status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg-chat);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            max-width: 85%;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            margin-left: auto;
+        }
+
+        .message.alfred {
+            margin-right: auto;
+        }
+
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            font-size: 15px;
+        }
+
+        .user .bubble {
+            background: var(--user-bubble);
+            border-bottom-right-radius: 4px;
+        }
+
+        .alfred .bubble {
+            background: var(--alfred-bubble);
+            border-bottom-left-radius: 4px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        .user .message-time {
+            text-align: right;
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: none;
+            padding: 12px 16px;
+            background: var(--alfred-bubble);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            border-left: 3px solid var(--accent);
+            width: fit-content;
+        }
+
+        .typing.show {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* Input Area */
+        .input-container {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: var(--bg-chat);
+            border-radius: 24px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        #messageInput {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            max-height: 100px;
+            line-height: 1.4;
+        }
+
+        #messageInput::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Welcome message */
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .welcome-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .welcome h2 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        /* Memory indicator */
+        .memory-badge {
+            font-size: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-icon">A</div>
+        <div class="header-info">
+            <h1>ALFRED <span class="memory-badge">BRAIN</span></h1>
+            <div class="status">
+                <span class="status-dot"></span>
+                <span id="statusText">Online - Ready to assist</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="welcome">
+            <div class="welcome-icon">A</div>
+            <h2>Good evening, sir.</h2>
+            <p>I am ALFRED, your AI butler. How may I assist you?</p>
+        </div>
+    </div>
+
+    <div class="typing" id="typingIndicator">
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <textarea
+                id="messageInput"
+                placeholder="Message ALFRED..."
+                rows="1"
+                autocomplete="off"
+                autocorrect="on"
+            ></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const statusText = document.getElementById('statusText');
+
+        let isFirstMessage = true;
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // Send on Enter (but not Shift+Enter)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function formatTime() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function addMessage(content, isUser = false) {
+            // Remove welcome message on first real message
+            if (isFirstMessage) {
+                const welcome = document.querySelector('.welcome');
+                if (welcome) welcome.remove();
+                isFirstMessage = false;
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'alfred'}`;
+            messageDiv.innerHTML = `
+                <div class="bubble">${escapeHtml(content)}</div>
+                <div class="message-time">${formatTime()}</div>
+            `;
+
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showTyping(show) {
+            typingIndicator.classList.toggle('show', show);
+            if (show) scrollToBottom();
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Clear input
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // Add user message
+            addMessage(message, true);
+
+            // Show typing
+            showTyping(true);
+            sendBtn.disabled = true;
+            statusText.textContent = 'ALFRED is thinking...';
+
+            try {
+                const response = await fetch(`${API_URL}/v1/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'alfred',
+                        messages: [{ role: 'user', content: message }],
+                        max_tokens: 500
+                    })
+                });
+
+                if (!response.ok) throw new Error('API error');
+
+                const data = await response.json();
+                const alfredResponse = data.choices[0].message.content;
+
+                // Add Alfred's response
+                showTyping(false);
+                addMessage(alfredResponse);
+                statusText.textContent = 'Online - Ready to assist';
+
+            } catch (error) {
+                console.error('Error:', error);
+                showTyping(false);
+                addMessage('I apologize, sir. I seem to be having trouble connecting. Please ensure the server is running.');
+                statusText.textContent = 'Connection issue';
+            }
+
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+
+        // Check API status on load
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    statusText.textContent = `Online - ${data.memory?.total_conversations || 0} memories`;
+                }
+            } catch (e) {
+                statusText.textContent = 'Server offline';
+            }
+        }
+
+        // Focus input on load
+        window.onload = () => {
+            checkStatus();
+            messageInput.focus();
+        };
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+# ALFRED-UBX Sensory System Requirements
+# Complete dependencies for vision, voice, and hearing capabilities
+# Author: Daniel J Rita (BATDAN)
+
+# ==============================================================================
+# CORE DEPENDENCIES (Already in main requirements.txt)
+# ==============================================================================
+
+# Rich terminal UI
+rich>=13.7.0
+
+# Database (sqlite3 is built-in with Python - no installation needed)
+
+# HTTP requests
+requests>=2.31.0
+
+# Configuration
+pyyaml>=6.0.1
+
+# ==============================================================================
+# VOICE (SPEAKING) - ALREADY INSTALLED
+# ==============================================================================
+
+# Text-to-speech engine (cross-platform)
+pyttsx3>=2.90
+
+# ==============================================================================
+# VOICE (HEARING/LISTENING) - NEW REQUIREMENTS
+# ==============================================================================
+
+# Speech recognition library
+SpeechRecognition>=3.10.1
+
+# Audio input/output (required for microphone access)
+# Windows/Linux: PyAudio
+# NOTE: Commented out - requires PortAudio system library
+# For Windows: Download pre-built wheel from https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+# For Python 3.14, you may need to build from source after installing PortAudio
+# PyAudio>=0.2.14  # May require system dependencies (see SETUP_GUIDE.md)
+
+# macOS alternative (if PyAudio fails)
+# sounddevice>=0.4.6  # Alternative audio library
+
+# Audio analysis and processing
+librosa>=0.10.1
+soundfile>=0.12.1
+
+# Speaker recognition (advanced voice identification)
+resemblyzer>=0.1.1.dev0  # Deep learning voice encoder
+
+# ==============================================================================
+# VISION (CAMERA/FACE RECOGNITION) - NEW REQUIREMENTS
+# ==============================================================================
+
+# Computer vision library
+opencv-python>=4.8.1.78
+
+# Face detection and recognition
+# NOTE: Commented out - face-recognition requires dlib, which needs CMake and Visual C++ Build Tools
+# To install:
+# 1. Install CMake from https://cmake.org/download/ (add to PATH during installation)
+# 2. Install Visual C++ Build Tools from https://visualstudio.microsoft.com/visual-cpp-build-tools/
+# 3. Then uncomment below or install separately:
+# face-recognition>=1.3.0
+# dlib>=19.24.2  # Required by face_recognition (may need build tools)
+
+# Deep face analysis (optional, advanced features)
+# NOTE: Commented out - deepface requires TensorFlow, which is not available for Python 3.14
+# If using Python 3.11 or 3.12, you can uncomment this line
+# deepface>=0.0.79
+
+# Image processing
+Pillow>=10.1.0
+numpy>=1.24.3  # Required by OpenCV and face_recognition
+
+# ==============================================================================
+# AI MODELS (Already in main requirements.txt)
+# ==============================================================================
+
+# Local AI (Ollama)
+# ollama  # Installed separately via: curl https://ollama.ai/install.sh | sh
+
+# Cloud AI clients
+anthropic>=0.18.0  # Claude
+openai>=1.12.0  # GPT-4
+groq>=0.4.2  # Groq
+
+# ==============================================================================
+# OPTIONAL DEPENDENCIES (Enhanced capabilities)
+# ==============================================================================
+
+# Advanced audio processing
+# scipy>=1.11.4  # Signal processing
+# pydub>=0.25.1  # Audio manipulation
+
+# GPU acceleration for vision (if NVIDIA GPU available)
+# opencv-contrib-python>=4.8.1.78  # OpenCV with CUDA support
+
+# Advanced face analysis
+# face-recognition-models>=0.3.0  # Additional face recognition models
+
+# ==============================================================================
+# SYSTEM DEPENDENCIES (Install before pip install)
+# ==============================================================================
+
+# Windows:
+#   - Microsoft Visual C++ 14.0+ (for dlib)
+#   - CMake (for dlib)
+#   - Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+# macOS:
+#   - brew install cmake
+#   - brew install portaudio  # For PyAudio
+#   - brew install ffmpeg  # For audio processing
+
+# Linux (Ubuntu/Debian):
+#   - sudo apt-get install build-essential cmake
+#   - sudo apt-get install libportaudio2 portaudio19-dev  # For PyAudio
+#   - sudo apt-get install python3-pyaudio  # Or install PyAudio via apt
+#   - sudo apt-get install ffmpeg  # For audio processing
+
+# ==============================================================================
+# INSTALLATION ORDER (Important!)
+# ==============================================================================
+
+# 1. Install system dependencies first (see above)
+# 2. Install core requirements:
+#    pip install -r requirements.txt
+# 3. Install sensory requirements:
+#    pip install -r requirements_sensory.txt
+# 4. If dlib fails, try:
+#    pip install dlib --no-cache-dir
+#    Or install pre-built wheel from: https://github.com/z-mahmud22/Dlib_Windows_Python3.x
+# 5. If PyAudio fails on Windows:
+#    Download wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+#    pip install PyAudio‑0.2.11‑cp312‑cp312‑win_amd64.whl
+# 6. Test installation:
+#    python -c "import cv2, face_recognition, speech_recognition; print('✅ All sensory libraries installed')"
+
+# ==============================================================================
+# QUICK INSTALL (All-in-one)
+# ==============================================================================
+
+# Install everything at once:
+# pip install rich pyttsx3 SpeechRecognition PyAudio librosa soundfile resemblyzer opencv-python face-recognition dlib Pillow numpy anthropic openai groq
+# Note: deepface excluded - requires TensorFlow (not available for Python 3.14)
+
+# ==============================================================================
+# TROUBLESHOOTING
+# ==============================================================================
+
+# If you encounter errors, see SENSORY_SETUP_GUIDE.md for detailed instructions
+# Common issues:
+# - dlib build errors: Install Visual C++ Build Tools (Windows) or cmake (Linux/macOS)
+# - PyAudio errors: Install portaudio system package first
+# - face_recognition errors: Ensure dlib is installed correctly
+# - Camera not detected: Check camera permissions in system settings
+# - Microphone not detected: Check microphone permissions in system settings
+
+# ==============================================================================
+# MINIMAL INSTALL (If build tools not available)
+# ==============================================================================
+
+# If you can't install dlib/face_recognition due to build issues:
+# pip install rich pyttsx3 SpeechRecognition PyAudio librosa soundfile opencv-python Pillow numpy
+
+# ALFRED will still work but with reduced face recognition capabilities

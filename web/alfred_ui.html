@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfred Ultimate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #0f0;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        .status {
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .chat-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #0f0;
+            padding: 20px;
+        }
+
+        .vision-area {
+            flex: 1;
+            border: 2px solid #0f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #001100;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid #0f0;
+        }
+
+        .message.user {
+            color: #00f;
+            border-left-color: #00f;
+        }
+
+        .message.alfred {
+            color: #0f0;
+            border-left-color: #0f0;
+        }
+
+        .message.system {
+            color: #ff0;
+            border-left-color: #ff0;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            background: #001100;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #000;
+            border: 2px solid #0f0;
+            color: #0f0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button.active {
+            background: #0f0;
+            color: #000;
+        }
+
+        #video {
+            width: 100%;
+            height: 300px;
+            background: #001100;
+            border: 2px solid #0f0;
+            margin-bottom: 10px;
+        }
+
+        #code-area {
+            width: 100%;
+            height: 150px;
+            background: #001100;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            resize: none;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #code-output {
+            margin-top: 10px;
+            padding: 10px;
+            background: #001100;
+            border: 2px solid #0f0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .online {
+            color: #0f0;
+        }
+
+        .offline {
+            color: #f00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ALFRED ULTIMATE</h1>
+            <div class="status">
+                <span id="status-text">Initializing...</span> |
+                AI: <span id="ai-status" class="offline">OFFLINE</span> |
+                Voice: <span id="voice-status" class="offline">OFFLINE</span> |
+                Vision: <span id="vision-status" class="offline">OFFLINE</span> |
+                Memory: <span id="memory-count">0</span> conversations
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="chat-area">
+                <div id="chat-messages"></div>
+                <div class="controls">
+                    <input type="text" id="text-input" placeholder="Type or click 'Start Voice' to speak...">
+                    <button id="voice-btn" onclick="toggleVoice()">Start Voice</button>
+                    <button id="vision-btn" onclick="sendWithVision()">Use Vision</button>
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+
+            <div class="vision-area">
+                <h3>Vision & Code</h3>
+                <video id="video" autoplay></video>
+                <button onclick="toggleCamera()">Toggle Camera</button>
+
+                <h4 style="margin-top: 20px;">Execute Code</h4>
+                <textarea id="code-area" placeholder="Write Python code here..."></textarea>
+                <div class="code-controls">
+                    <button onclick="executeCode()">Run Code</button>
+                    <button onclick="clearCode()">Clear</button>
+                </div>
+                <div id="code-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+        let isListening = false;
+        let videoStream = null;
+        let currentVoice = null;
+
+        // Initialize on load
+        window.onload = function() {
+            connectWebSocket();
+            initVoice();
+            updateStatus();
+            setInterval(updateStatus, 5000);
+        };
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8000/ws');
+
+            ws.onopen = function() {
+                addMessage('WebSocket connected', 'system');
+                document.getElementById('status-text').textContent = 'ONLINE';
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'response') {
+                    addMessage('ALFRED: ' + data.message, 'alfred');
+                    speak(data.message);
+                } else if (data.type === 'code_result') {
+                    displayCodeResult(data.result);
+                }
+            };
+
+            ws.onerror = function(error) {
+                addMessage('WebSocket error', 'system');
+            };
+
+            ws.onclose = function() {
+                addMessage('WebSocket disconnected', 'system');
+                document.getElementById('status-text').textContent = 'OFFLINE';
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        function initVoice() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    addMessage('Microphone active - speak now...', 'system');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[event.results.length - 1][0].transcript;
+                    document.getElementById('text-input').value = transcript;
+                    addMessage('YOU: ' + transcript, 'user');
+                    sendMessage();
+
+                    // Auto restart if still listening
+                    if (isListening) {
+                        setTimeout(() => recognition.start(), 300);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    addMessage('Voice error: ' + event.error, 'system');
+                    if (event.error === 'not-allowed') {
+                        addMessage('Microphone permission denied. Click browser address bar to allow microphone access.', 'system');
+                        isListening = false;
+                        document.getElementById('voice-btn').textContent = 'Start Voice';
+                        document.getElementById('voice-btn').classList.remove('active');
+                    } else if (event.error === 'network') {
+                        addMessage('Network error: Cannot connect to speech servers. Check internet connection or firewall.', 'system');
+                        addMessage('WORKAROUND: Just type your message in the text box instead.', 'system');
+                        isListening = false;
+                        document.getElementById('voice-btn').textContent = 'Start Voice';
+                        document.getElementById('voice-btn').classList.remove('active');
+                    } else if (event.error === 'no-speech') {
+                        addMessage('No speech detected. Trying again...', 'system');
+                        if (isListening) {
+                            setTimeout(() => recognition.start(), 300);
+                        }
+                    } else {
+                        if (isListening) {
+                            setTimeout(() => recognition.start(), 500);
+                        }
+                    }
+                };
+
+                recognition.onend = function() {
+                    if (isListening) {
+                        setTimeout(() => recognition.start(), 300);
+                    }
+                };
+
+                document.getElementById('voice-status').textContent = 'READY';
+                document.getElementById('voice-status').className = 'online';
+            } else {
+                document.getElementById('voice-status').textContent = 'NOT SUPPORTED';
+                document.getElementById('voice-status').className = 'offline';
+                addMessage('Speech recognition not supported in this browser. Use Chrome or Edge.', 'system');
+            }
+
+            // Select best voice (prefer English)
+            if (synthesis) {
+                synthesis.onvoiceschanged = function() {
+                    const voices = synthesis.getVoices();
+                    currentVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                };
+            }
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                addMessage('Voice recognition not available', 'system');
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                isListening = false;
+                document.getElementById('voice-btn').textContent = 'Start Voice';
+                document.getElementById('voice-btn').classList.remove('active');
+                addMessage('Voice stopped', 'system');
+            } else {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    document.getElementById('voice-btn').textContent = 'Stop Voice';
+                    document.getElementById('voice-btn').classList.add('active');
+                } catch (err) {
+                    addMessage('Failed to start voice: ' + err.message, 'system');
+                }
+            }
+        }
+
+        function speak(text) {
+            if (!synthesis) return;
+
+            // Stop any ongoing speech
+            synthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (currentVoice) {
+                utterance.voice = currentVoice;
+            }
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            synthesis.speak(utterance);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('text-input');
+            const message = input.value.trim();
+
+            if (!message || !ws) return;
+
+            if (!document.getElementById('text-input').value.startsWith('YOU:')) {
+                addMessage('YOU: ' + message, 'user');
+            }
+
+            ws.send(JSON.stringify({
+                type: 'chat',
+                message: message
+            }));
+
+            input.value = '';
+        }
+
+        async function toggleCamera() {
+            const video = document.getElementById('video');
+
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                video.srcObject = null;
+                document.getElementById('vision-status').textContent = 'OFFLINE';
+                document.getElementById('vision-status').className = 'offline';
+            } else {
+                try {
+                    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = videoStream;
+                    document.getElementById('vision-status').textContent = 'ACTIVE';
+                    document.getElementById('vision-status').className = 'online';
+                } catch (err) {
+                    addMessage('Camera access denied', 'system');
+                }
+            }
+        }
+
+        function sendWithVision() {
+            const input = document.getElementById('text-input');
+            const message = input.value.trim() || 'What do you see?';
+
+            if (!ws || !videoStream) {
+                addMessage('Camera not active', 'system');
+                return;
+            }
+
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const imageData = canvas.toDataURL('image/jpeg').split(',')[1];
+
+            addMessage('YOU (with vision): ' + message, 'user');
+
+            ws.send(JSON.stringify({
+                type: 'chat',
+                message: message,
+                image: imageData
+            }));
+
+            input.value = '';
+        }
+
+        function executeCode() {
+            const code = document.getElementById('code-area').value.trim();
+
+            if (!code || !ws) return;
+
+            addMessage('Executing code...', 'system');
+
+            ws.send(JSON.stringify({
+                type: 'execute_code',
+                code: code,
+                language: 'python'
+            }));
+        }
+
+        function clearCode() {
+            document.getElementById('code-area').value = '';
+            document.getElementById('code-output').innerHTML = '';
+        }
+
+        function displayCodeResult(result) {
+            const output = document.getElementById('code-output');
+
+            if (result.error) {
+                output.innerHTML = '<span style="color:#f00">Error: ' + result.error + '</span>';
+            } else {
+                let html = '';
+                if (result.stdout) {
+                    html += '<div style="color:#0f0">Output:\n' + result.stdout + '</div>';
+                }
+                if (result.stderr) {
+                    html += '<div style="color:#f00">Errors:\n' + result.stderr + '</div>';
+                }
+                if (!result.stdout && !result.stderr) {
+                    html = '<span style="color:#0f0">Code executed successfully (no output)</span>';
+                }
+                output.innerHTML = html;
+            }
+        }
+
+        function addMessage(text, type) {
+            const messages = document.getElementById('chat-messages');
+            const msg = document.createElement('div');
+            msg.className = 'message ' + type;
+            msg.textContent = text;
+            messages.appendChild(msg);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+
+                document.getElementById('ai-status').textContent = data.models.join(', ').toUpperCase();
+                document.getElementById('ai-status').className = 'online';
+                document.getElementById('memory-count').textContent = data.conversations;
+            } catch (err) {
+                document.getElementById('ai-status').textContent = 'OFFLINE';
+                document.getElementById('ai-status').className = 'offline';
+            }
+        }
+
+        // Enter key sends message
+        document.getElementById('text-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

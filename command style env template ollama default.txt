@@ -1,0 +1,20 @@
+$env: 
+$env:
+$env:
+$env:
+$env:
+$env:
+
+# Default Provider
+DEFAULT_PROVIDER=ollama
+
+# Memory Settings
+MEMORY_ENABLED=true
+MEMORY_PATH=./memory
+
+# Voice Settings
+VOICE_ENABLED=true
+
+# Server Settings
+HOST=127.0.0.1
+PORT=8000
