@@ -1,12 +1,13 @@
-# ALFRED_UBX Requirements
-# AI Assistant with Persistent Memory & Adaptive Learning
-# Author: Daniel J. Rita aka BATDAN007
-# https://github.com/Batdan007/ALFRED_UBX
+# ALFRED II-Y-II Requirements
+# The Ultimate AI Butler - ALFRED_UBX + Alfred_Ultimate Merged
+# Author: Daniel J. Rita (BATDAN)
+# https://github.com/Batdan007/ALFRED_II-Y-II
 
 # ===== AI Providers =====
 anthropic>=0.39.0
 openai>=1.50.0
 groq>=0.11.0
+google-generativeai>=0.8.0
 
 # ===== Web Framework =====
 fastapi>=0.115.0
@@ -20,9 +21,15 @@ mcp>=1.0.0
 rich>=13.9.0
 prompt-toolkit>=3.0.48
 typer>=0.13.0
+textual>=0.50.0
 
 # ===== Text-to-Speech =====
 pyttsx3>=2.90
+edge-tts>=6.1.0
+
+# ===== Speech Recognition =====
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.14
 
 # ===== Data & Config =====
 pydantic>=2.9.0
@@ -38,6 +45,18 @@ requests>=2.32.0
 aiosqlite>=0.20.0
 sqlalchemy>=2.0.0
 
+# ===== Vector Database / RAG =====
+chromadb>=0.5.0
+sentence-transformers>=2.2.0
+
+# ===== Web Crawling =====
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+crawl4ai>=0.3.0
+
+# ===== Security Scanning =====
+strix-agent>=0.5.0
+
 # ===== Async Support =====
 anyio>=4.6.0
 asyncio-atexit>=1.0.1
@@ -46,6 +65,11 @@ asyncio-atexit>=1.0.1
 python-dateutil>=2.9.0
 tenacity>=9.0.0
 PyYAML>=6.0.2
+xmltodict>=0.13.0
+
+# ===== Image/Vision =====
+pillow>=10.0.0
+opencv-python>=4.8.0
 
 # ===== Testing (optional) =====
 pytest>=8.3.0
@@ -57,7 +81,8 @@ black>=24.0.0
 ruff>=0.7.0
 mypy>=1.13.0
 
-# ===== Platform-Specific =====
+# ===== Platform-Specific Notes =====
 # Windows: pywin32 (installed automatically by pyttsx3)
 # macOS: pyobjc-framework-Cocoa (for speech)
 # Linux: espeak-ng system package required
+# Docker: Required for Strix security scanner
