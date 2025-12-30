@@ -80,10 +80,10 @@ class AlfredVoice:
     # Alfred's personality-driven responses
     GREETINGS = [
         "Good evening, sir.",
-        "Good evening, Master Wayne.",
+        "Good evening, Master Rita.",
         "Alfred at your service, sir.",
         "The Batcomputer is online, sir.",
-        "Good to see you, sir."
+        "Good to see you, Daniel."
     ]
 
     CONFIRMATIONS = [

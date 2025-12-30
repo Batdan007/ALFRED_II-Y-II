@@ -30,7 +30,7 @@ def test_voice(voice_id, voice_name):
 
     phrases = [
         "Good evening, sir.",
-        "Good evening, Master Wayne.",
+        "Good evening, Master Rita.",
         "The Batcomputer is online, sir.",
         "Right away, sir.",
         "I must advise caution, sir.",

@@ -725,7 +725,7 @@ class AlfredBrain:
             "user": user_input,
             "alfred": alfred_response,
             "topics": json.dumps(topics) if topics else None,
-            "timestamp": timestamp
+            "timestamp": datetime.now().isoformat()
         })
         self.context_cache = self.context_cache[:50]  # Keep last 50
 

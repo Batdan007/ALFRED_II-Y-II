@@ -42,6 +42,54 @@ from capabilities.voice.alfred_voice import AlfredVoice, VoicePersonality
 from ai.multimodel import MultiModelOrchestrator
 from tools.manager import ToolManager
 
+# Patent-pending technologies (graceful degradation)
+try:
+    from core.cortex import CORTEX
+    CORTEX_AVAILABLE = True
+except ImportError:
+    CORTEX = None
+    CORTEX_AVAILABLE = False
+
+try:
+    from core.ultrathunk import UltrathunkEngine
+    ULTRATHUNK_AVAILABLE = True
+except ImportError:
+    UltrathunkEngine = None
+    ULTRATHUNK_AVAILABLE = False
+
+try:
+    from core.guardian import ALFREDGuardian, protect_response
+    GUARDIAN_AVAILABLE = True
+except ImportError:
+    ALFREDGuardian = None
+    protect_response = lambda x, y="confirmation": x
+    GUARDIAN_AVAILABLE = False
+
+try:
+    from core.nexus import ALFREDNexusAgent, NEXUSRouter
+    NEXUS_AVAILABLE = True
+except ImportError:
+    ALFREDNexusAgent = None
+    NEXUSRouter = None
+    NEXUS_AVAILABLE = False
+
+try:
+    from core.memory_integration import UnifiedMemory, get_unified_memory
+    UNIFIED_MEMORY_AVAILABLE = True
+except ImportError:
+    UnifiedMemory = None
+    get_unified_memory = None
+    UNIFIED_MEMORY_AVAILABLE = False
+
+try:
+    from core.ethics import JoeDogRule, check_ethics, JOE_DOG_BLESSING
+    ETHICS_AVAILABLE = True
+except ImportError:
+    JoeDogRule = None
+    check_ethics = lambda x: type('obj', (object,), {'is_safe': True, 'message': '', 'suggestion': None})()
+    JOE_DOG_BLESSING = ""
+    ETHICS_AVAILABLE = False
+
 # Sensory systems (optional - graceful degradation if dependencies missing)
 try:
     from capabilities.vision.alfred_eyes import AlfredEyes
@@ -99,6 +147,19 @@ class AlfredTerminal:
         self.voice_enabled = True  # Voice ON by default!
         self.tool_mode_enabled = False
         self.running = False
+
+        # Patent-pending technologies
+        self.cortex = None           # CORTEX: 5-layer forgetting brain
+        self.ultrathunk = None       # ULTRATHUNK: 640:1 compression
+        self.guardian = None         # ALFREDGuardian: IP protection
+        self.nexus_agent = None      # NEXUS: AI-to-AI communication
+        self.unified_memory = None   # Unified Memory: Brain + CORTEX + ULTRATHUNK
+        self.ethics = None           # Joe Dog's Rule: Ethical safeguards
+
+        # Wake word settings
+        self.wake_words = ["hey alfred", "alfred", "batcomputer", "hey batcomputer"]
+        self.wake_word_enabled = True
+        self.always_listening = False
 
         # Now initialize everything properly
         self._initialize_components()
@@ -228,7 +289,43 @@ class AlfredTerminal:
             self.tools = ToolManager(privacy_controller=self.privacy, brain=self.brain)
             self.logger.info("Tool manager initialized")
 
+            # Initialize patent-pending technologies
+            if CORTEX_AVAILABLE:
+                self.cortex = CORTEX()
+                self.logger.info("CORTEX (forgetting brain) initialized")
+
+            if ULTRATHUNK_AVAILABLE:
+                self.ultrathunk = UltrathunkEngine()
+                self.logger.info("ULTRATHUNK (compression) initialized")
+
+            if GUARDIAN_AVAILABLE:
+                self.guardian = ALFREDGuardian()
+                self.logger.info("ALFREDGuardian (IP protection) initialized")
+
+            if NEXUS_AVAILABLE:
+                self.nexus_agent = ALFREDNexusAgent(alfred_brain=self.brain)
+                self.logger.info("NEXUS agent initialized")
+
+            # Create Unified Memory (integrates Brain + CORTEX + ULTRATHUNK)
+            if UNIFIED_MEMORY_AVAILABLE and self.brain:
+                self.unified_memory = UnifiedMemory(brain=self.brain)
+                # Share the same instances
+                if self.unified_memory.cortex:
+                    self.cortex = self.unified_memory.cortex
+                if self.unified_memory.ultrathunk:
+                    self.ultrathunk = self.unified_memory.ultrathunk
+                self.logger.info("Unified Memory initialized (Brain + CORTEX + ULTRATHUNK)")
+
+            # Initialize Joe Dog's Rule (Ethics)
+            if ETHICS_AVAILABLE:
+                self.ethics = JoeDogRule()
+                self.logger.info("Joe Dog's Rule initialized (Ethics protection active)")
+
             self.console.print(f"\n[green]Alfred Brain initialized on {platform_name}[/green]\n")
+
+            # Display Joe Dog's blessing
+            if ETHICS_AVAILABLE and JOE_DOG_BLESSING:
+                self.console.print(f"[dim cyan]{JOE_DOG_BLESSING}[/dim cyan]")
 
         except Exception as e:
             self.logger.error(f"Failed to initialize components: {e}")
@@ -332,10 +429,22 @@ class AlfredTerminal:
             '/watch': self._cmd_watch,
             '/remember': self._cmd_remember_face,
             '/listen': self._cmd_listen,
+            '/wakeword': self._cmd_wakeword,
+            '/always_listen': self._cmd_always_listen,
             '/learn_voice': self._cmd_learn_voice,
             '/stop_listening': self._cmd_stop_listening,
             '/joe': self._cmd_joe_dog,
             '/status': self._cmd_status,
+            # Patent-pending technologies
+            '/cortex': self._cmd_cortex,
+            '/ultrathunk': self._cmd_ultrathunk,
+            '/guardian': self._cmd_guardian,
+            '/nexus': self._cmd_nexus,
+            '/unified': self._cmd_unified,
+            '/consolidate': self._cmd_consolidate,
+            '/learn': self._cmd_learn,
+            '/forget': self._cmd_forget,
+            '/ethics': self._cmd_ethics,
             '/exit': self._cmd_exit,
             '/quit': self._cmd_exit
         }
@@ -349,6 +458,32 @@ class AlfredTerminal:
     def _handle_conversation(self, user_input: str):
         """Handle conversational input"""
         try:
+            # === JOE DOG'S RULE - Ethics Check (INVIOLABLE) ===
+            # This check MUST happen before ANY processing
+            if self.ethics:
+                ethics_result = check_ethics(user_input)
+                if not ethics_result.is_safe:
+                    # Hard block - refuse request
+                    self.console.print(f"\n[bold red]{ethics_result.message}[/bold red]")
+                    if ethics_result.suggestion:
+                        self.console.print(f"[yellow]{ethics_result.suggestion}[/yellow]")
+                    self.console.print()
+
+                    # Voice the refusal
+                    self._safe_speak(ethics_result.message, VoicePersonality.WARNING)
+
+                    # Store the ethical intervention in brain
+                    if self.brain:
+                        self.brain.store_conversation(
+                            user_input=user_input,
+                            alfred_response=f"[ETHICS BLOCK] {ethics_result.message}",
+                            success=False
+                        )
+                    return
+                elif ethics_result.message:
+                    # Soft warning - proceed but note the concern
+                    self.console.print(f"[dim yellow]{ethics_result.message}[/dim yellow]")
+
             # Get conversation context from brain
             context = self.brain.get_conversation_context(limit=5)
 
@@ -423,12 +558,27 @@ class AlfredTerminal:
                 response = self.ai.generate(user_input, context)
 
                 if response:
-                    # Store in brain
-                    self.brain.store_conversation(
-                        user_input=user_input,
-                        alfred_response=response,
-                        success=True
-                    )
+                    # Apply Guardian IP protection (behavioral fingerprints)
+                    if self.guardian:
+                        response = protect_response(response, "confirmation")
+
+                    # Use Unified Memory if available (handles Brain + CORTEX + ULTRATHUNK)
+                    if self.unified_memory:
+                        self.unified_memory.capture(
+                            content=user_input,
+                            response=response,
+                            topic="conversation"
+                        )
+                    else:
+                        # Fallback to individual systems
+                        self.brain.store_conversation(
+                            user_input=user_input,
+                            alfred_response=response,
+                            success=True
+                        )
+                        if self.cortex:
+                            self.cortex.capture(user_input, topic="conversation")
+                            self.cortex.tick()
 
                     # Display response
                     self.console.print(f"\n[bold cyan]Alfred:[/bold cyan]")
@@ -449,6 +599,17 @@ class AlfredTerminal:
     def _handle_conversation_with_tools(self, user_input: str, context):
         """Handle conversation with tool use enabled"""
         try:
+            # === JOE DOG'S RULE - Ethics Check (INVIOLABLE) ===
+            # This check MUST happen before ANY tool execution
+            if self.ethics:
+                ethics_result = check_ethics(user_input)
+                if not ethics_result.is_safe:
+                    self.console.print(f"\n[bold red]{ethics_result.message}[/bold red]")
+                    if ethics_result.suggestion:
+                        self.console.print(f"[yellow]{ethics_result.suggestion}[/yellow]")
+                    self._safe_speak(ethics_result.message, VoicePersonality.WARNING)
+                    return
+
             # Check if Claude is available
             if not self.ai.claude or not self.ai.claude.is_available():
                 self.console.print("[red]Tool mode requires Claude API. Please set ANTHROPIC_API_KEY.[/red]")
@@ -540,6 +701,8 @@ class AlfredTerminal:
 - `/voice on|off` - Enable/disable Alfred's voice
 - `/learn_voice` - Teach Alfred to recognize your voice
 - `/listen` - Start listening for voice commands
+- `/wakeword` - Configure wake words (Hey Alfred, Batcomputer)
+- `/always_listen` - Always-on mode with wake word detection
 
 ## Vision Control
 - `/see` - Show who Alfred sees through camera
@@ -1063,8 +1226,146 @@ class AlfredTerminal:
             if self.voice_enabled:
                 self.voice.error("Voice learning failed")
 
+    def _cmd_wakeword(self, command: str):
+        """Configure wake words"""
+        parts = command.split()
+
+        if len(parts) == 1:
+            # Show current wake words
+            self.console.print("\n[cyan]Wake Word Configuration[/cyan]")
+            self.console.print(f"[green]Status:[/green] {'Enabled' if self.wake_word_enabled else 'Disabled'}")
+            self.console.print(f"[green]Wake Words:[/green] {', '.join(self.wake_words)}")
+            self.console.print("\n[dim]Usage: /wakeword on|off|add <word>|remove <word>[/dim]")
+            return
+
+        action = parts[1].lower()
+
+        if action == 'on':
+            self.wake_word_enabled = True
+            self.console.print("[green]Wake word detection enabled[/green]")
+            self._safe_speak("Wake word detection enabled, sir.", VoicePersonality.CONFIRMATION)
+
+        elif action == 'off':
+            self.wake_word_enabled = False
+            self.console.print("[yellow]Wake word detection disabled[/yellow]")
+
+        elif action == 'add' and len(parts) > 2:
+            new_word = ' '.join(parts[2:]).lower()
+            if new_word not in self.wake_words:
+                self.wake_words.append(new_word)
+                self.console.print(f"[green]Added wake word: '{new_word}'[/green]")
+            else:
+                self.console.print(f"[yellow]'{new_word}' is already a wake word[/yellow]")
+
+        elif action == 'remove' and len(parts) > 2:
+            word = ' '.join(parts[2:]).lower()
+            if word in self.wake_words:
+                self.wake_words.remove(word)
+                self.console.print(f"[yellow]Removed wake word: '{word}'[/yellow]")
+            else:
+                self.console.print(f"[red]'{word}' is not a wake word[/red]")
+
+        elif action == 'list':
+            self.console.print(f"[cyan]Current wake words:[/cyan] {', '.join(self.wake_words)}")
+
+        else:
+            self.console.print("[red]Unknown action. Use: on, off, add, remove, list[/red]")
+
+    def _cmd_always_listen(self, command: str):
+        """Start always-on listening mode with wake word detection"""
+        if not self.ears or not self.ears.microphone:
+            self.console.print("[red]Hearing system not available. Microphone may not be connected.[/red]")
+            self.console.print("[dim]Install dependencies: pip install SpeechRecognition pyaudio[/dim]")
+            return
+
+        if not self.wake_word_enabled:
+            self.console.print("[yellow]Wake word detection is disabled. Enabling...[/yellow]")
+            self.wake_word_enabled = True
+
+        self.always_listening = True
+        self.console.print("\n[bold cyan]Always-On Listening Mode[/bold cyan]")
+        self.console.print(f"[green]Wake words:[/green] {', '.join(self.wake_words)}")
+        self.console.print("[dim]Say a wake word to activate Alfred, 'stop listening' to exit[/dim]")
+
+        def handle_with_wake_word(text: str):
+            """Process speech with wake word detection"""
+            text_lower = text.lower().strip()
+
+            # Check for stop command
+            if "stop listening" in text_lower or "stop" == text_lower:
+                self.always_listening = False
+                self.console.print("[yellow]Stopping always-on mode[/yellow]")
+                self._safe_speak("Stopping listening mode, sir.", VoicePersonality.CONFIRMATION)
+                return False  # Signal to stop
+
+            # Check for wake word
+            wake_word_detected = None
+            for wake_word in self.wake_words:
+                if text_lower.startswith(wake_word):
+                    wake_word_detected = wake_word
+                    break
+                elif wake_word in text_lower:
+                    wake_word_detected = wake_word
+                    break
+
+            if wake_word_detected:
+                # Extract command after wake word
+                command_text = text_lower.replace(wake_word_detected, '').strip()
+
+                if command_text:
+                    self.console.print(f"[green]You: {command_text}[/green]")
+                    self._safe_speak("Yes, sir?", VoicePersonality.GREETING)
+
+                    # Process the command
+                    if command_text.startswith('/'):
+                        self._handle_command(command_text)
+                    else:
+                        self._handle_conversation(command_text)
+                else:
+                    # Just wake word, acknowledge and wait
+                    self.console.print("[cyan]At your service, sir.[/cyan]")
+                    self._safe_speak("At your service, sir.", VoicePersonality.GREETING)
+
+            return True  # Continue listening
+
+        try:
+            self._safe_speak("Always-on listening activated. Say my name when you need me, sir.", VoicePersonality.INFORMATION)
+
+            # Start continuous listening with wake word detection
+            while self.always_listening:
+                try:
+                    # Listen for a phrase
+                    if hasattr(self.ears, 'listen_once'):
+                        text = self.ears.listen_once(timeout=5)
+                    else:
+                        # Fallback - use basic listen
+                        import speech_recognition as sr
+                        recognizer = sr.Recognizer()
+                        with sr.Microphone() as source:
+                            recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                            try:
+                                audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
+                                text = recognizer.recognize_google(audio)
+                            except sr.WaitTimeoutError:
+                                continue
+                            except sr.UnknownValueError:
+                                continue
+
+                    if text:
+                        if not handle_with_wake_word(text):
+                            break
+
+                except Exception as e:
+                    # Silently continue on errors
+                    continue
+
+        except KeyboardInterrupt:
+            self.console.print("[yellow]Stopped listening[/yellow]")
+            self.always_listening = False
+
     def _cmd_stop_listening(self, command: str):
         """Stop listening mode"""
+        self.always_listening = False
         if self.ears:
             self.ears.stop_listening()
             self.console.print("[yellow]Stopped listening[/yellow]")
@@ -1180,6 +1481,333 @@ class AlfredTerminal:
         self.console.print("[dim]/learn_voice - Teach Alfred to recognize your voice[/dim]")
         self.console.print("[dim]/joe - Pay tribute to Joe Dog[/dim]")
         self.console.print()
+
+    # === Patent-Pending Technology Commands ===
+
+    def _cmd_cortex(self, command: str):
+        """Show CORTEX (forgetting brain) statistics"""
+        if not self.cortex:
+            self.console.print("[red]CORTEX not available[/red]")
+            return
+
+        stats = self.cortex.get_stats()
+
+        table = Table(title="🧠 CORTEX - The Forgetting Brain", box=box.ROUNDED)
+        table.add_column("Layer", style="cyan")
+        table.add_column("Items", style="green")
+        table.add_column("Avg Importance", style="yellow")
+
+        table.add_row("Flash", str(stats['flash_count']), "-")
+        table.add_row("Working", str(stats['working_count']), "-")
+
+        for layer_name, layer_stats in stats['layers'].items():
+            table.add_row(
+                layer_name.replace('_', ' ').title(),
+                str(layer_stats['count']),
+                str(layer_stats['avg_importance'])
+            )
+
+        self.console.print(table)
+        self.console.print(f"\n[dim]Total: {stats['total_memories']} / {stats['storage_bound']} ({stats['utilization']}% utilized)[/dim]")
+        self.console.print("[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+
+    def _cmd_ultrathunk(self, command: str):
+        """Show ULTRATHUNK compression statistics"""
+        if not self.ultrathunk:
+            self.console.print("[red]ULTRATHUNK not available[/red]")
+            return
+
+        stats = self.ultrathunk.get_stats()
+
+        table = Table(title="📦 ULTRATHUNK - Compressed Intelligence", box=box.ROUNDED)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+
+        table.add_row("Total Thunks", str(stats['total_thunks']))
+        table.add_row("Original Data", f"{stats['original_bytes']:,} bytes")
+        table.add_row("Compressed", f"{stats['compressed_bytes']:,} bytes")
+        table.add_row("Compression Ratio", f"{stats['compression_ratio']}:1")
+        table.add_row("Total Fires", str(stats['total_fires']))
+        table.add_row("Avg Confidence", f"{stats['avg_confidence']:.2f}")
+
+        self.console.print(table)
+
+        if stats['by_type']:
+            self.console.print("\n[cyan]By Type:[/cyan]")
+            for thunk_type, count in stats['by_type'].items():
+                self.console.print(f"  {thunk_type}: {count}")
+
+        self.console.print("\n[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+
+    def _cmd_guardian(self, command: str):
+        """Show ALFREDGuardian IP protection status"""
+        if not self.guardian:
+            self.console.print("[red]ALFREDGuardian not available[/red]")
+            return
+
+        cert = self.guardian.generate_certificate()
+
+        table = Table(title="🛡️ ALFREDGuardian - IP Protection", box=box.ROUNDED)
+        table.add_column("Property", style="cyan")
+        table.add_column("Value", style="green")
+
+        table.add_row("Instance ID", cert['instance_id'])
+        table.add_row("Signature Hash", cert['signature_hash'][:32] + "...")
+        table.add_row("Linguistic Fingerprints", str(cert['fingerprints']['linguistic']))
+        table.add_row("Timing Fingerprints", str(cert['fingerprints']['timing']))
+        table.add_row("Structural Fingerprints", str(cert['fingerprints']['structural']))
+        table.add_row("Owner", cert['owner'])
+        table.add_row("Entity", cert['entity'])
+        table.add_row("Status", cert['patent_status'])
+
+        self.console.print(table)
+        self.console.print("\n[dim]All responses are protected with behavioral fingerprints[/dim]")
+
+    def _cmd_nexus(self, command: str):
+        """Show NEXUS Protocol status"""
+        if not self.nexus_agent:
+            self.console.print("[red]NEXUS Protocol not available[/red]")
+            return
+
+        table = Table(title="🔗 NEXUS Protocol - AI-to-AI Communication", box=box.ROUNDED)
+        table.add_column("Property", style="cyan")
+        table.add_column("Value", style="green")
+
+        table.add_row("Agent ID", self.nexus_agent.agent_id)
+        table.add_row("Agent Name", self.nexus_agent.name)
+        table.add_row("Capabilities", str(len(self.nexus_agent.capabilities)))
+
+        self.console.print(table)
+
+        self.console.print("\n[cyan]Registered Capabilities:[/cyan]")
+        for cap in self.nexus_agent.get_capabilities():
+            self.console.print(f"  [green]{cap.name}[/green]: {cap.description}")
+            self.console.print(f"    [dim]Latency: {cap.latency_ms}ms | Reliability: {cap.reliability:.1%}[/dim]")
+
+        self.console.print("\n[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+
+    def _cmd_unified(self, command: str):
+        """Show Unified Memory statistics"""
+        if not self.unified_memory:
+            self.console.print("[red]Unified Memory not available[/red]")
+            return
+
+        stats = self.unified_memory.get_stats()
+
+        table = Table(title="🔮 Unified Memory - Brain + CORTEX + ULTRATHUNK", box=box.ROUNDED)
+        table.add_column("System", style="cyan")
+        table.add_column("Status", style="green")
+        table.add_column("Details", style="dim")
+
+        # Brain stats
+        if stats['systems']['brain']:
+            brain = stats['systems']['brain']
+            table.add_row(
+                "🧠 Brain (11-table)",
+                "Active",
+                f"{brain.get('conversations', 0)} convos, {brain.get('knowledge', 0)} knowledge"
+            )
+
+        # CORTEX stats
+        if stats['systems']['cortex']:
+            cortex = stats['systems']['cortex']
+            table.add_row(
+                "🌀 CORTEX (5-layer)",
+                "Active",
+                f"{cortex.get('total_memories', 0)} items, {cortex.get('utilization', 0)}% utilized"
+            )
+
+        # ULTRATHUNK stats
+        if stats['systems']['ultrathunk']:
+            thunk = stats['systems']['ultrathunk']
+            table.add_row(
+                "📦 ULTRATHUNK",
+                "Active",
+                f"{thunk.get('total_thunks', 0)} thunks, {thunk.get('compression_ratio', 0)}:1 compression"
+            )
+
+        self.console.print(table)
+
+        # Integration stats
+        self.console.print(f"\n[cyan]Integration Stats:[/cyan]")
+        self.console.print(f"  Syncs: {stats['integration']['syncs']}")
+        self.console.print(f"  Knowledge synced: {stats['integration']['knowledge_synced']}")
+        self.console.print(f"  Patterns compressed: {stats['integration']['patterns_compressed']}")
+        self.console.print(f"  Total items: {stats['total_items']}")
+
+    def _cmd_consolidate(self, command: str):
+        """Run full memory consolidation (like sleep for AI)"""
+        if not self.unified_memory:
+            self.console.print("[red]Unified Memory not available[/red]")
+            return
+
+        self.console.print("[cyan]Running memory consolidation...[/cyan]")
+        self.console.print("[dim]This syncs Brain, CORTEX, and ULTRATHUNK[/dim]")
+
+        try:
+            report = self.unified_memory.consolidate()
+
+            self.console.print("\n[green]Consolidation complete![/green]")
+
+            if report.get('cortex'):
+                c = report['cortex']
+                self.console.print(f"  CORTEX: {c.get('archived', 0)} items archived")
+
+            if report.get('ultrathunk'):
+                u = report['ultrathunk']
+                self.console.print(f"  ULTRATHUNK: {u.get('thunks_after', 0)} thunks ({u.get('compression_ratio', 0)}:1)")
+
+            if report.get('sync'):
+                s = report['sync']
+                self.console.print(f"  Sync: {s.get('knowledge_synced', 0)} knowledge synced")
+
+            self._safe_speak("Memory consolidation complete, sir.", VoicePersonality.CONFIRMATION)
+
+        except Exception as e:
+            self.console.print(f"[red]Consolidation error: {e}[/red]")
+
+    def _cmd_learn(self, command: str):
+        """Learn generative patterns from conversations using Fabric"""
+        parts = command.split(maxsplit=1)
+        topic = parts[1] if len(parts) > 1 else None
+
+        self.console.print("[cyan]Learning generative patterns...[/cyan]")
+
+        if not self.ultrathunk:
+            self.console.print("[red]ULTRATHUNK not available[/red]")
+            return
+
+        # Get recent conversations from brain
+        if self.brain:
+            try:
+                # Get recent conversations
+                conversations = self.brain.get_conversation_context(limit=50)
+
+                if not conversations:
+                    self.console.print("[yellow]No conversations to learn from[/yellow]")
+                    return
+
+                # Group by detected topics/patterns
+                items = []
+                for conv in conversations:
+                    items.append({
+                        'content': conv.get('user_input', ''),
+                        'response': conv.get('alfred_response', ''),
+                        'timestamp': conv.get('timestamp', '')
+                    })
+
+                # Try to compress into thunks
+                from core.ultrathunk import ThunkType
+                thunk = self.ultrathunk.compress_and_store(items, ThunkType.PATTERN)
+
+                if thunk:
+                    self.console.print(f"\n[green]Created new ULTRATHUNK![/green]")
+                    self.console.print(f"  ID: {thunk.id}")
+                    self.console.print(f"  Name: {thunk.name}")
+                    self.console.print(f"  Compression: {thunk.compression_ratio:.1f}:1")
+                    self.console.print(f"  Items compressed: {thunk.created_from_count}")
+
+                    # Store in brain's knowledge
+                    if self.brain:
+                        import json
+                        self.brain.store_knowledge(
+                            category="learned_pattern",
+                            key=thunk.id,
+                            value=json.dumps({
+                                'name': thunk.name,
+                                'trigger': thunk.trigger_pattern,
+                                'template': thunk.generator_template,
+                                'compression': thunk.compression_ratio
+                            }),
+                            source="fabric_learning",
+                            importance=8
+                        )
+
+                    self._safe_speak("I've learned a new pattern, sir.", VoicePersonality.CONFIRMATION)
+                else:
+                    self.console.print("[yellow]Not enough data to form a pattern yet[/yellow]")
+
+            except Exception as e:
+                self.console.print(f"[red]Learning error: {e}[/red]")
+        else:
+            self.console.print("[red]Brain not available[/red]")
+
+    def _cmd_forget(self, command: str):
+        """Forget non-generative patterns (cleanup)"""
+        self.console.print("[cyan]Analyzing patterns for generativity...[/cyan]")
+
+        if not self.ultrathunk:
+            self.console.print("[red]ULTRATHUNK not available[/red]")
+            return
+
+        try:
+            # Get all thunks
+            thunks = self.ultrathunk.list_thunks(limit=100)
+
+            forgotten = 0
+            kept = 0
+
+            for thunk in thunks:
+                # Non-generative criteria:
+                # - Never fired (fire_count == 0)
+                # - Low confidence (< 0.3)
+                # - Poor compression ratio (< 2:1)
+                is_non_generative = (
+                    thunk.fire_count == 0 and
+                    (thunk.confidence < 0.3 or thunk.compression_ratio < 2.0)
+                )
+
+                if is_non_generative:
+                    # Remove from database
+                    import sqlite3
+                    conn = sqlite3.connect(self.ultrathunk.db_path)
+                    cursor = conn.cursor()
+                    cursor.execute('DELETE FROM ultrathunks WHERE id = ?', (thunk.id,))
+                    conn.commit()
+                    conn.close()
+                    forgotten += 1
+                    self.console.print(f"  [dim]Forgot: {thunk.name} (unused, low value)[/dim]")
+                else:
+                    kept += 1
+
+            self.console.print(f"\n[green]Cleanup complete![/green]")
+            self.console.print(f"  Forgotten: {forgotten} non-generative patterns")
+            self.console.print(f"  Kept: {kept} generative patterns")
+
+            if forgotten > 0:
+                self._safe_speak(f"Forgotten {forgotten} non-generative patterns, sir.", VoicePersonality.INFORMATION)
+
+        except Exception as e:
+            self.console.print(f"[red]Forget error: {e}[/red]")
+
+    def _cmd_ethics(self, command: str):
+        """Show Joe Dog's Rule ethics status"""
+        if not self.ethics:
+            self.console.print("[red]Ethics module not available[/red]")
+            return
+
+        stats = self.ethics.get_stats()
+
+        # Display Joe Dog's Blessing
+        if ETHICS_AVAILABLE and JOE_DOG_BLESSING:
+            self.console.print(f"[cyan]{JOE_DOG_BLESSING}[/cyan]")
+
+        table = Table(title="Joe Dog's Rule - Ethics Protection", box=box.ROUNDED)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+
+        table.add_row("Violations Blocked", str(stats['violations_blocked']))
+        table.add_row("Positive Actions", str(stats['positive_count']))
+        table.add_row("Positivity Ratio", f"{stats['ratio']:.1%}")
+
+        self.console.print(table)
+
+        self.console.print("\n[cyan]Inviolable Principles:[/cyan]")
+        self.console.print("  [red]HARD BLOCK[/red] - Weapons, violence against humans/animals")
+        self.console.print("  [yellow]SOFT BLOCK[/yellow] - Environmental harm, exploitation, hatred")
+        self.console.print("  [green]ENCOURAGED[/green] - Peace, love, sustainability, protection")
+
+        self._safe_speak("Joe Dog's Rule is active and protecting all life, sir.", VoicePersonality.INFORMATION)
 
     def _cmd_exit(self, command: str):
         """Exit Alfred"""

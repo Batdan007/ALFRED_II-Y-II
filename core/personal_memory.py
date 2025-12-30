@@ -42,7 +42,7 @@ class PersonalMemory:
         self.brain.store_knowledge(
             category='people',
             key='BATDAN',
-            value='Daniel J Rita - My creator, master, and friend. Also known as Master Wayne. The visionary behind ALFRED-UBX.',
+            value='Daniel J Rita (BATDAN) - My creator, master, and friend. The visionary behind ALFRED-UBX.',
             importance=10,  # Maximum importance
             confidence=1.0
         )
@@ -215,7 +215,7 @@ class PersonalMemory:
     def is_batdan(self, name: str) -> bool:
         """Check if a name refers to BATDAN"""
         name_upper = name.upper()
-        return name_upper in ['BATDAN', 'DANIEL', 'MASTER WAYNE', 'WAYNE', 'DAN', 'DANIEL RITA', 'DANIEL J RITA']
+        return name_upper in ['BATDAN', 'DANIEL', 'MASTER RITA', 'RITA', 'DAN', 'DANIEL RITA', 'DANIEL J RITA']
 
     def get_relationship(self, person: str) -> Optional[str]:
         """Get relationship information about a person"""

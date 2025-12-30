@@ -135,12 +135,17 @@ class BugBountyHunter:
         if self.strix and self.strix.strix_available:
             try:
                 print("[*] Running Strix security scan...")
-                result = self.strix.scan_url(target, scan_type=scan_type)
+                from capabilities.security.strix_scanner import ScanType
+                strix_scan_type = ScanType.FULL if scan_type == "full" else ScanType.QUICK
+                result = self.strix.scan(target, scan_type=strix_scan_type)
                 if result:
                     scan_results["vulnerabilities"] = result.get("vulnerabilities", [])
-                    scan_results["findings"] = result.get("findings", [])
+                    scan_results["findings"] = result.get("severity_summary", {})
+                    scan_results["butler_commentary"] = result.get("butler_commentary", "")
                     vuln_count = len(scan_results["vulnerabilities"])
                     print(f"[+] Found {vuln_count} potential vulnerabilities")
+                    if scan_results["butler_commentary"]:
+                        print(f"[ALFRED] {scan_results['butler_commentary']}")
             except Exception as e:
                 logger.error(f"Strix scan failed: {e}")
                 scan_results["error"] = str(e)

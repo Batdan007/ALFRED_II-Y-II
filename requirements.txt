@@ -81,8 +81,21 @@ black>=24.0.0
 ruff>=0.7.0
 mypy>=1.13.0
 
+# ===== Voice Recognition (Offline) =====
+vosk>=0.3.45
+sounddevice>=0.5.0
+
+# ===== Advanced Audio =====
+librosa>=0.11.0
+resemblyzer>=0.1.4
+
+# ===== Face Recognition & Vision =====
+face_recognition>=1.3.0
+deepface>=0.0.90
+
 # ===== Platform-Specific Notes =====
 # Windows: pywin32 (installed automatically by pyttsx3)
 # macOS: pyobjc-framework-Cocoa (for speech)
 # Linux: espeak-ng system package required
 # Docker: Required for Strix security scanner
+# Note: Requires Python 3.12 for full compatibility (strix-agent + chromadb)
