@@ -122,7 +122,7 @@ class StockLookup:
         self.base_url = "https://api.polygon.io"
 
         if not self.api_key:
-            self.logger.warning("No Polygon API key found - stock lookups will fail")
+            self.logger.debug("No Polygon API key found - stock lookups disabled")
 
     def is_available(self) -> bool:
         """Check if stock lookup is available"""

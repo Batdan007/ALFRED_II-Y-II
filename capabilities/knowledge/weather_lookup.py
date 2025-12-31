@@ -67,8 +67,7 @@ class WeatherLookup:
         self.default_location = default_location
 
         if not self.api_key:
-            self.logger.warning("No OpenWeatherMap API key - weather lookups will fail")
-            self.logger.info("Set OPEN_WEATHER_KEY environment variable")
+            self.logger.debug("No OpenWeatherMap API key - weather lookups disabled")
 
     def is_available(self) -> bool:
         """Check if weather lookup is available"""

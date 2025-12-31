@@ -1,6 +1,6 @@
 @echo off
+:: ALFRED II-Y-II Launcher
 cd /d "%~dp0"
-if exist "venv\Scripts\activate.bat" (
-    call venv\Scripts\activate.bat
-)
-python main.py %*
+
+:: Use Python 3.11 with the proper module
+py -3.11 -m alfred %*

@@ -191,13 +191,13 @@ class CAMDANClient:
                 if attempt < self.max_retries - 1:
                     # Exponential backoff: 1s, 2s, 4s
                     wait_time = 2 ** attempt
-                    self.logger.warning(
-                        f"Request failed (attempt {attempt + 1}/{self.max_retries}), "
+                    self.logger.debug(
+                        f"Request attempt {attempt + 1}/{self.max_retries} failed, "
                         f"retrying in {wait_time}s: {e}"
                     )
                     await asyncio.sleep(wait_time)
                 else:
-                    self.logger.error(f"Request failed after {self.max_retries} attempts: {e}")
+                    self.logger.debug(f"Request failed after {self.max_retries} attempts: {e}")
 
         raise last_exception
 
@@ -266,7 +266,7 @@ class CAMDANClient:
                     return data
                 else:
                     self.available = False
-                    self.logger.warning(f"CAMDAN health check failed: HTTP {resp.status}")
+                    self.logger.debug(f"CAMDAN health check: HTTP {resp.status}")
                     return {"status": "unhealthy", "code": resp.status}
 
         try:
@@ -278,7 +278,7 @@ class CAMDANClient:
         except (aiohttp.ClientError, asyncio.TimeoutError) as e:
             self.available = False
             self.circuit_breaker._on_failure()  # Manual failure tracking
-            self.logger.error(f"CAMDAN health check failed after retries: {e}")
+            self.logger.debug(f"CAMDAN health check: {e}")
             return {
                 "status": "unavailable",
                 "error": str(e),

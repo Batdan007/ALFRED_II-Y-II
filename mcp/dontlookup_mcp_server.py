@@ -37,7 +37,7 @@ try:
     # For now, we'll create a placeholder
     DONTLOOKUP_AVAILABLE = True
 except ImportError:
-    print("Warning: DontLookUp not installed. Clone from https://github.com/ucsdsysnet/dontlookup")
+    pass  # DontLookUp is optional
 
 from core.brain import AlfredBrain
 

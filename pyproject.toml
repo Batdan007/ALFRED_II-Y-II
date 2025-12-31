@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alfred-ai"
+version = "3.0.0"
+description = "ALFRED - The Distinguished British Butler AI Assistant"
+readme = "README.md"
+license = {text = "Proprietary - Patent Pending"}
+authors = [
+    {name = "Daniel J Rita", email = "danieljrita@hotmail.com"}
+]
+requires-python = ">=3.10"
+keywords = ["ai", "assistant", "voice", "butler", "alfred"]
+
+dependencies = [
+    "requests>=2.31.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+voice = [
+    "faster-whisper>=1.0.0",
+    "edge-tts>=6.1.0",
+    "sounddevice>=0.4.6",
+    "numpy>=1.24.0",
+]
+full = [
+    "faster-whisper>=1.0.0",
+    "edge-tts>=6.1.0",
+    "sounddevice>=0.4.6",
+    "numpy>=1.24.0",
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "opencv-python>=4.8.0",
+]
+
+[project.scripts]
+# Main commands - type these anywhere after install
+alfred = "alfred.__main__:main"
+alfred-voice = "alfred_voice_mode:main"
+alfred-setup = "setup_voice:main"
+
+[project.urls]
+Homepage = "https://github.com/BATDAN/ALFRED_II-Y-II"
+
+[tool.setuptools]
+packages = ["alfred", "core", "capabilities", "ai", "tools", "agents"]
+py-modules = ["alfred_terminal", "alfred_voice_mode", "alfred_voice_loop", "setup_voice"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml", "*.txt"]

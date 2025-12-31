@@ -72,7 +72,7 @@ class DontLookUpScanner:
                 self.dontlookup_available = True
                 self.logger.info(f"DontLookUp parser detected at: {self.dontlookup_path}")
             else:
-                self.logger.warning("DontLookUp not found. Clone from: https://github.com/ucsdsysnet/dontlookup.git")
+                self.logger.debug("DontLookUp not found - feature disabled")
 
         except Exception as e:
             self.logger.error(f"Error checking DontLookUp availability: {e}")

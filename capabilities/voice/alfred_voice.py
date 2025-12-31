@@ -404,7 +404,7 @@ class AlfredVoice:
             # Add personality prefix based on context
             full_text = self._add_personality(text, personality)
 
-            self.logger.info(f"Alfred: {full_text}")
+            self.logger.debug(f"Speaking: {full_text[:50]}...")
 
             # Priority 1: Edge TTS (Ryan - high quality British male)
             if EDGE_TTS_AVAILABLE and platform.system() == 'Windows':

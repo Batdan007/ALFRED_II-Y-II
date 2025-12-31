@@ -1,0 +1,18 @@
+# ALFRED Voice Interface - Additional Dependencies
+# ================================================
+# Run: pip install -r requirements_voice.txt
+
+# Speech Recognition (Whisper - GPU accelerated)
+faster-whisper>=1.0.0
+ctranslate2>=4.0.0
+
+# Text-to-Speech (Edge TTS - free, natural British voice)
+edge-tts>=6.1.0
+
+# Audio processing
+sounddevice>=0.4.6
+numpy>=1.24.0
+
+# Note: Also requires ffmpeg installed on system
+# Windows: winget install ffmpeg
+# Or download from: https://ffmpeg.org/download.html

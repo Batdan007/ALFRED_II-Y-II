@@ -7,8 +7,12 @@ Components:
 - AlfredEarsAdvanced: Speech-to-Text (VOSK + Google)
 - VoiceConfig: Configuration management
 
-STT Priority: VOSK (offline) -> Google Speech (online)
-TTS Priority: ElevenLabs (premium) -> pyttsx3 (local)
+NEW (Upgraded):
+- WhisperSTT: High-quality speech recognition (faster-whisper, GPU accelerated)
+- EdgeTTSVoice: Natural British voice (Edge TTS, free, no API key)
+
+STT Priority: Whisper (GPU) -> VOSK (offline) -> Google Speech (online)
+TTS Priority: Edge TTS (free, natural) -> ElevenLabs (premium) -> pyttsx3 (local)
 
 Author: Daniel J Rita (BATDAN)
 """
@@ -60,6 +64,20 @@ try:
 except ImportError:
     LEGACY_EARS_AVAILABLE = False
 
+# NEW: Whisper STT (GPU accelerated, high quality)
+try:
+    from .whisper_stt import WhisperSTT, create_whisper_stt
+    WHISPER_AVAILABLE = True
+except ImportError:
+    WHISPER_AVAILABLE = False
+
+# NEW: Edge TTS (free, natural British voice)
+try:
+    from .edge_tts_voice import EdgeTTSVoice, create_edge_tts_voice
+    EDGE_TTS_AVAILABLE = True
+except ImportError:
+    EDGE_TTS_AVAILABLE = False
+
 
 # Build __all__ dynamically
 __all__ = [
@@ -93,6 +111,12 @@ if ELEVENLABS_AVAILABLE:
 if LEGACY_EARS_AVAILABLE:
     __all__.append('AlfredEars')
 
+if WHISPER_AVAILABLE:
+    __all__.extend(['WhisperSTT', 'create_whisper_stt', 'WHISPER_AVAILABLE'])
+
+if EDGE_TTS_AVAILABLE:
+    __all__.extend(['EdgeTTSVoice', 'create_edge_tts_voice', 'EDGE_TTS_AVAILABLE'])
+
 
 def get_voice_system_status() -> dict:
     """
@@ -103,6 +127,10 @@ def get_voice_system_status() -> dict:
     """
     return {
         'stt': {
+            'whisper': {
+                'installed': WHISPER_AVAILABLE,
+                'description': 'GPU-accelerated speech recognition (RECOMMENDED)'
+            },
             'vosk': {
                 'installed': VOSK_AVAILABLE,
                 'description': 'Offline speech recognition (privacy-first)'
@@ -113,13 +141,17 @@ def get_voice_system_status() -> dict:
             }
         },
         'tts': {
+            'edge_tts': {
+                'installed': EDGE_TTS_AVAILABLE,
+                'description': 'Natural British voice, free (RECOMMENDED)'
+            },
             'elevenlabs': {
                 'installed': ELEVENLABS_AVAILABLE,
-                'description': 'Premium AI voice (cloud)'
+                'description': 'Premium AI voice (cloud, requires API key)'
             },
             'pyttsx3': {
                 'installed': True,  # Always available with AlfredVoice
-                'description': 'Local system voice (offline)'
+                'description': 'Local system voice (offline, robotic)'
             }
         },
         'managers': {
@@ -127,8 +159,9 @@ def get_voice_system_status() -> dict:
             'voice_config': CONFIG_AVAILABLE
         },
         'install_commands': {
+            'recommended': 'pip install faster-whisper edge-tts sounddevice numpy',
             'offline_stt': 'pip install vosk sounddevice',
             'premium_tts': 'pip install elevenlabs && set ELEVENLABS_API_KEY=your_key',
-            'full_setup': 'pip install vosk sounddevice elevenlabs SpeechRecognition pyaudio'
+            'full_setup': 'pip install faster-whisper edge-tts vosk sounddevice elevenlabs SpeechRecognition pyaudio'
         }
     }

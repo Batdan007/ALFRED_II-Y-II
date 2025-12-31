@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """
-ALFRED_UBX Universal Installer
-AI Assistant with Persistent Memory & Adaptive Learning
-
-This installer works on all platforms: Windows, macOS, Linux, WSL, iOS (Pythonista/a-Shell)
-Author: Daniel J. Rita aka BATDAN007
-https://github.com/Batdan007/ALFRED_UBX
+ALFRED II-Y-II Universal Installer
+===================================
+One command to install EVERYTHING - all dependencies, voice, the works.
 
 Usage:
-    python install.py [options]
-    
-Options:
-    --skip-venv     Skip virtual environment creation
-    --force         Force reinstall (remove existing venv)
-    --minimal       Install minimal dependencies only
-    --help          Show this help message
+    python install.py              # Full install
+    python install.py --quick      # Skip optional heavy components
+    python install.py --no-voice   # Skip voice system
+    python install.py --minimal    # Bare minimum only
+
+After install, just type: alfred
+
+Author: Daniel J. Rita (BATDAN)
+Patent-pending technology - CAMDAN Enterprises LLC
+
+IMPORTANT: Requires Python 3.11 or 3.12 (NOT 3.13/3.14)
+Many packages don't have pre-built wheels for Python 3.13+
 """
 
 import os
@@ -26,28 +28,46 @@ import argparse
 from pathlib import Path
 from typing import Optional, List, Tuple
 
-# Minimum Python version
+# Python version requirements
 MIN_PYTHON = (3, 10)
+MAX_PYTHON = (3, 12)  # 3.13+ has compatibility issues
+RECOMMENDED_PYTHON = "3.11"
+WHISPER_MODEL = "base.en"  # ~150MB for voice
 
-# Core dependencies
+# Core dependencies (always installed)
 CORE_PACKAGES = [
     "anthropic",
     "openai",
     "groq",
-    "fastapi",
-    "uvicorn[standard]",
-    "mcp",
+    "google-generativeai",
     "rich",
     "prompt-toolkit",
+    "typer",
     "pydantic",
+    "pydantic-settings",
     "python-dotenv",
     "aiohttp",
     "httpx",
+    "requests",
 ]
 
-# Optional packages (may not work on all platforms)
+# Voice packages
+VOICE_PACKAGES = [
+    "faster-whisper",
+    "edge-tts",
+    "sounddevice",
+    "numpy",
+    "SpeechRecognition",
+]
+
+# Optional heavy packages (can fail gracefully)
 OPTIONAL_PACKAGES = [
-    "pyttsx3",  # Text-to-speech (not available on iOS)
+    "chromadb",
+    "sentence-transformers",
+    "opencv-python",
+    "pillow",
+    "beautifulsoup4",
+    "pyttsx3",
 ]
 
 # Minimal packages (for resource-constrained environments)
@@ -57,6 +77,7 @@ MINIMAL_PACKAGES = [
     "python-dotenv",
     "pydantic",
     "httpx",
+    "requests",
 ]
 
 
@@ -78,17 +99,20 @@ class Colors:
 
 
 class Installer:
-    """Cross-platform installer for ALFRED_UBX."""
-    
-    def __init__(self, skip_venv: bool = False, force: bool = False, minimal: bool = False):
+    """Cross-platform installer for ALFRED II-Y-II."""
+
+    def __init__(self, skip_venv: bool = False, force: bool = False,
+                 minimal: bool = False, no_voice: bool = False, quick: bool = False):
         self.skip_venv = skip_venv
         self.force = force
         self.minimal = minimal
+        self.no_voice = no_voice
+        self.quick = quick
         self.venv_dir = Path("venv")
         self.install_dir = Path.cwd()
         self.os_type = self._detect_os()
         self.python_cmd = sys.executable
-        
+
         # Disable colors if not a TTY
         if not sys.stdout.isatty():
             Colors.disable()
@@ -146,16 +170,27 @@ class Installer:
         print(banner)
     
     def check_python_version(self) -> bool:
-        """Check if Python version meets minimum requirements."""
+        """Check if Python version meets requirements."""
         self.info("Checking Python version...")
-        
+
         version = sys.version_info
-        if version >= MIN_PYTHON:
-            self.success(f"Python {version.major}.{version.minor}.{version.micro}")
-            return True
-        else:
-            self.error(f"Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]}+ required, found {version.major}.{version.minor}")
+        version_str = f"{version.major}.{version.minor}.{version.micro}"
+
+        if version < MIN_PYTHON:
+            self.error(f"Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]}+ required, found {version_str}")
             return False
+
+        if version > MAX_PYTHON:
+            self.warn(f"Python {version_str} detected - may have compatibility issues")
+            self.warn(f"Recommended: Python {RECOMMENDED_PYTHON}")
+            self.info("  Some packages (faster-whisper) don't have wheels for Python 3.13+")
+            self.info(f"  Consider using: py -{RECOMMENDED_PYTHON} install.py")
+            # Continue anyway, but warn
+            self.success(f"Python {version_str} (may have issues)")
+            return True
+
+        self.success(f"Python {version_str}")
+        return True
     
     def check_git(self) -> bool:
         """Check if Git is installed."""
@@ -250,48 +285,154 @@ class Installer:
             return False
     
     def install_dependencies(self) -> bool:
-        """Install Python dependencies."""
+        """Install Python dependencies from requirements.txt."""
         self.info("Installing dependencies...")
-        
+
         # Upgrade pip first
         self.info("Upgrading pip...")
         self.run_pip(["install", "--upgrade", "pip"])
         self.success("pip upgraded")
-        
-        # Check for requirements.txt
+
+        # Install from requirements.txt (the single source of truth)
         requirements_file = self.install_dir / "requirements.txt"
         if requirements_file.exists():
             self.info("Installing from requirements.txt...")
-            if self.run_pip(["install", "-r", str(requirements_file)]):
-                self.success("Dependencies installed from requirements.txt")
-                return True
+            if self.run_pip(["install", "-r", str(requirements_file)], quiet=False):
+                self.success("All dependencies installed from requirements.txt")
             else:
-                self.warn("Some dependencies may have failed, continuing...")
-        
-        # Install packages based on mode
-        packages = MINIMAL_PACKAGES if self.minimal else CORE_PACKAGES
-        
-        self.info(f"Installing {'minimal' if self.minimal else 'core'} dependencies...")
-        for package in packages:
-            self.info(f"  Installing {package}...")
-            if not self.run_pip(["install", package]):
-                self.warn(f"  Could not install {package}")
-        
-        # Install optional packages (non-iOS only)
-        if not self.minimal and self.os_type != "ios":
-            self.info("Installing optional dependencies...")
-            for package in OPTIONAL_PACKAGES:
+                self.warn("Some dependencies may have failed")
+                self.info("  This is often due to Python version compatibility")
+                self.info(f"  Try: py -{RECOMMENDED_PYTHON} -m pip install -r requirements.txt")
+        else:
+            # Fallback to individual packages if no requirements.txt
+            packages = MINIMAL_PACKAGES if self.minimal else CORE_PACKAGES
+
+            self.info(f"Installing {'minimal' if self.minimal else 'core'} dependencies...")
+            for package in packages:
                 self.info(f"  Installing {package}...")
                 if not self.run_pip(["install", package]):
-                    self.warn(f"  Could not install {package} (optional)")
-        
+                    self.warn(f"  Could not install {package}")
+
+            # Install voice packages (unless --no-voice or minimal)
+            if not self.minimal and not self.no_voice and self.os_type != "ios":
+                self.info("Installing voice system...")
+                for package in VOICE_PACKAGES:
+                    self.info(f"  Installing {package}...")
+                    if not self.run_pip(["install", package]):
+                        self.warn(f"  Could not install {package} (voice may not work)")
+
         # Platform-specific dependencies
         if self.os_type == "macos":
             self.info("Installing macOS-specific dependencies...")
             self.run_pip(["install", "pyobjc-framework-Cocoa"])
-        
+
         self.success("Dependencies installed")
         return True
+
+    def install_ffmpeg(self) -> bool:
+        """Install/check ffmpeg for voice."""
+        if self.no_voice:
+            return True
+
+        self.info("Checking ffmpeg (required for voice)...")
+
+        if shutil.which("ffmpeg"):
+            self.success("ffmpeg already installed")
+            return True
+
+        if self.os_type != "windows":
+            self.warn("ffmpeg not found - install manually:")
+            self.info("  Ubuntu: sudo apt install ffmpeg")
+            self.info("  macOS: brew install ffmpeg")
+            return True
+
+        # Windows: try winget
+        self.info("Installing ffmpeg via winget...")
+        try:
+            subprocess.run(
+                ["winget", "install", "-e", "--id", "Gyan.FFmpeg", "-h", "--accept-source-agreements"],
+                capture_output=True, timeout=120
+            )
+            self.success("ffmpeg installed (restart terminal for PATH)")
+            return True
+        except Exception:
+            self.warn("ffmpeg install failed - download from ffmpeg.org")
+            return True
+
+    def download_whisper_model(self) -> bool:
+        """Download Whisper model for offline speech recognition."""
+        if self.no_voice or self.quick or self.minimal:
+            return True
+
+        self.info(f"Downloading Whisper model ({WHISPER_MODEL})...")
+
+        try:
+            from faster_whisper import WhisperModel
+
+            self.info("  Downloading ~150MB model (this may take a minute)...")
+
+            # Try GPU first
+            try:
+                model = WhisperModel(WHISPER_MODEL, device="cuda", compute_type="float16")
+                device = "GPU"
+            except Exception:
+                model = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="float32")
+                device = "CPU"
+
+            del model
+            self.success(f"Whisper model ready ({device})")
+            return True
+
+        except ImportError:
+            self.warn("faster-whisper not installed, skipping model")
+            return True
+        except Exception as e:
+            self.warn(f"Model download failed: {e}")
+            self.info("  Model will download on first use")
+            return True
+
+    def check_ollama(self) -> bool:
+        """Check Ollama connection."""
+        self.info("Checking Ollama (local AI)...")
+
+        try:
+            import requests
+            r = requests.get("http://localhost:11434/api/tags", timeout=3)
+            if r.status_code == 200:
+                models = r.json().get('models', [])
+                if models:
+                    names = [m['name'].split(':')[0] for m in models[:3]]
+                    self.success(f"Ollama running: {', '.join(names)}")
+                else:
+                    self.success("Ollama running (no models)")
+                    self.info("  Pull a model: ollama pull llama3.2")
+                return True
+        except Exception:
+            pass
+
+        self.warn("Ollama not running")
+        self.info("  Start with: ollama serve")
+        self.info("  Download: https://ollama.com")
+        return True
+
+    def install_package(self) -> bool:
+        """Install ALFRED package in editable mode."""
+        self.info("Installing ALFRED package...")
+
+        try:
+            result = subprocess.run(
+                [self.get_python_command(), "-m", "pip", "install", "-e", "."],
+                capture_output=True, text=True, timeout=120
+            )
+            if result.returncode == 0:
+                self.success("alfred command registered")
+                return True
+            else:
+                self.warn(f"Package install issue: {result.stderr[:100]}")
+                return True  # Non-fatal
+        except Exception as e:
+            self.warn(f"Package install error: {e}")
+            return True
     
     def create_env_file(self):
         """Create .env configuration file."""
@@ -435,51 +576,68 @@ python main.py "$@"
     def run(self) -> int:
         """Run the installation."""
         self.show_banner()
-        
+
+        mode = "minimal" if self.minimal else ("quick" if self.quick else "full")
         self.info(f"Detected OS: {self.os_type}")
         self.info(f"Install directory: {self.install_dir}")
-        
+        self.info(f"Install mode: {mode}" + (" (no voice)" if self.no_voice else ""))
+
         # Check prerequisites
         if not self.check_python_version():
             return 1
-        
+
         self.check_git()
-        
+
         # Create virtual environment
         if not self.create_venv():
             return 1
-        
+
         # Install dependencies
         if not self.install_dependencies():
             self.warn("Some dependencies may not have been installed")
-        
+
+        # Install ffmpeg for voice
+        self.install_ffmpeg()
+
+        # Install ALFRED as a package
+        self.install_package()
+
+        # Download Whisper model
+        self.download_whisper_model()
+
+        # Check Ollama
+        self.check_ollama()
+
         # Setup configuration
         self.create_env_file()
-        
+
         # Create launchers
         self.create_launcher()
-        
+
         # Show instructions
         self.show_instructions()
-        
+
         return 0
 
 
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="ALFRED_UBX Universal Installer",
+        description="ALFRED II-Y-II Universal Installer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    python install.py                  # Standard installation
+    python install.py                  # Full installation with voice
+    python install.py --quick          # Skip optional heavy components
+    python install.py --no-voice       # Skip voice system
+    python install.py --minimal        # Bare minimum dependencies
     python install.py --skip-venv      # Install without virtual environment
-    python install.py --minimal        # Install minimal dependencies
-    python install.py --force          # Force reinstall
-    python install.py --no-wizard      # Skip setup wizard
+    python install.py --force          # Force reinstall (remove venv)
+
+After install, just type: alfred
 """
     )
-    
+
     parser.add_argument(
         "--skip-venv",
         action="store_true",
@@ -496,32 +654,27 @@ Examples:
         help="Install minimal dependencies only"
     )
     parser.add_argument(
-        "--no-wizard",
+        "--no-voice",
         action="store_true",
-        help="Skip launching setup wizard after installation"
+        help="Skip voice system (faster-whisper, edge-tts)"
     )
-    
+    parser.add_argument(
+        "--quick", "-q",
+        action="store_true",
+        help="Quick install - skip optional heavy components"
+    )
+
     args = parser.parse_args()
-    
+
     installer = Installer(
         skip_venv=args.skip_venv,
         force=args.force,
-        minimal=args.minimal
+        minimal=args.minimal,
+        no_voice=args.no_voice,
+        quick=args.quick
     )
-    
+
     result = installer.run()
-    
-    # Launch setup wizard automatically (unless skipped)
-    if result == 0 and not args.no_wizard:
-        print(f"\n{Colors.CYAN}Launching Setup Wizard...{Colors.NC}\n")
-        setup_wizard = Path("setup_wizard.py")
-        if setup_wizard.exists():
-            try:
-                subprocess.run([installer.get_python_command(), str(setup_wizard)])
-            except Exception as e:
-                print(f"Could not launch setup wizard: {e}")
-                print("You can run it manually: python setup_wizard.py")
-    
     sys.exit(result)
 
 

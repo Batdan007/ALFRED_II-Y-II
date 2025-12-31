@@ -61,7 +61,7 @@ class CAMDANTool(Tool):
                 self.camdan_available = True
                 self.logger.info("CAMDAN engineering service is available")
             else:
-                self.logger.warning(f"CAMDAN service unhealthy: {health.get('status')}")
+                self.logger.debug(f"CAMDAN service status: {health.get('status')}")
 
         except ImportError as e:
             # CAMDAN dependencies not installed (aiohttp, etc.) - optional integration

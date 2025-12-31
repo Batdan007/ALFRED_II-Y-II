@@ -82,7 +82,7 @@ class NewsLookup:
         self.alphavantage_url = "https://www.alphavantage.co/query"
 
         if not any([self.newsapi_key, self.polygon_key]):
-            self.logger.warning("No news API keys found - news lookups may be limited")
+            self.logger.debug("No news API keys found - news lookups disabled")
 
     def is_available(self) -> bool:
         """Check if any news source is available"""

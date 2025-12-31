@@ -39,7 +39,7 @@ class DontLookUpTool(Tool):
             if self.dontlookup_available:
                 self.logger.info("DontLookUp tool initialized successfully")
             else:
-                self.logger.warning("DontLookUp not installed - tool will be unavailable")
+                self.logger.debug("DontLookUp not installed - tool disabled")
         except Exception as e:
             self.logger.error(f"Error initializing DontLookUp tool: {e}")
             self.dontlookup_available = False

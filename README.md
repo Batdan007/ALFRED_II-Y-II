@@ -39,6 +39,37 @@ ALFRED II-Y-II combines the best of both worlds:
 
 ---
 
+## System Requirements
+
+### Minimum (Text-only mode)
+| Component | Requirement |
+|-----------|-------------|
+| **CPU** | 4 cores, 2.0 GHz |
+| **RAM** | 8 GB |
+| **Storage** | 5 GB free |
+| **Python** | 3.11 or 3.12 (NOT 3.13/3.14) |
+| **OS** | Windows 10+, macOS 11+, Linux |
+
+### Recommended (Full Voice + Local AI)
+| Component | Requirement |
+|-----------|-------------|
+| **CPU** | 8+ cores, 3.0 GHz |
+| **RAM** | 16 GB (32 GB for large models) |
+| **GPU** | NVIDIA RTX 3060+ (6GB VRAM) for GPU acceleration |
+| **Storage** | 20 GB free (for Ollama models) |
+| **Python** | 3.11 (best compatibility) |
+| **FFmpeg** | Required for voice |
+
+### Software Dependencies
+| Software | Purpose | Install |
+|----------|---------|---------|
+| **Python 3.11** | Runtime | [python.org](https://python.org) |
+| **Ollama** | Local AI (privacy-first) | [ollama.com](https://ollama.com) |
+| **FFmpeg** | Voice processing | `winget install ffmpeg` |
+| **CUDA** | GPU acceleration (optional) | [nvidia.com](https://developer.nvidia.com/cuda-downloads) |
+
+---
+
 ## Quick Start
 
 ```bash
@@ -46,14 +77,18 @@ ALFRED II-Y-II combines the best of both worlds:
 git clone https://github.com/Batdan007/ALFRED_II-Y-II.git
 cd ALFRED_II-Y-II
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# 2. Install (uses Python 3.11 automatically)
+install.bat                    # Windows
+# or
+py -3.11 -m pip install -r requirements.txt && py -3.11 -m pip install -e .
 
-# 3. Configure (GUI wizard)
-python setup_wizard.py
+# 3. Start Ollama (for local AI)
+ollama serve
+ollama pull llama3.2          # Download a model
 
 # 4. Launch ALFRED
-python alfred_terminal.py
+alfred                        # Terminal mode
+alfred --voice                # Voice mode
 ```
 
 ---
