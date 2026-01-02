@@ -925,6 +925,71 @@ class AlfredBrain:
         conn.close()
         return result
 
+
+    def get_top_knowledge(
+        self,
+        limit: int = 20,
+        category: Optional[str] = None,
+        min_confidence: float = 0.0,
+        min_importance: int = 0
+    ) -> List[Dict]:
+        """
+        Get top knowledge items sorted by importance and confidence
+
+        Args:
+            limit: Maximum number of items to return
+            category: Optional category filter
+            min_confidence: Minimum confidence threshold (0.0-1.0)
+            min_importance: Minimum importance threshold (0-10)
+
+        Returns:
+            List of knowledge dictionaries with all fields
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        if category:
+            cursor.execute("""
+                SELECT id, category, key, value, source, confidence,
+                       times_accessed, last_accessed, importance, timestamp
+                FROM knowledge
+                WHERE category = ?
+                  AND confidence >= ?
+                  AND importance >= ?
+                  AND superseded_by IS NULL
+                ORDER BY importance DESC, confidence DESC, times_accessed DESC
+                LIMIT ?
+            """, (category, min_confidence, min_importance, limit))
+        else:
+            cursor.execute("""
+                SELECT id, category, key, value, source, confidence,
+                       times_accessed, last_accessed, importance, timestamp
+                FROM knowledge
+                WHERE confidence >= ?
+                  AND importance >= ?
+                  AND superseded_by IS NULL
+                ORDER BY importance DESC, confidence DESC, times_accessed DESC
+                LIMIT ?
+            """, (min_confidence, min_importance, limit))
+
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                "id": row[0],
+                "category": row[1],
+                "key": row[2],
+                "value": row[3],
+                "source": row[4],
+                "confidence": row[5],
+                "times_accessed": row[6],
+                "last_accessed": row[7],
+                "importance": row[8],
+                "timestamp": row[9]
+            })
+
+        conn.close()
+        return results
+
     def search_knowledge(self, query: str, limit: int = 10, semantic: bool = True) -> List[Dict]:
         """Search knowledge base with optional semantic ranking"""
         if not semantic:
