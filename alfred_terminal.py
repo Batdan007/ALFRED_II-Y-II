@@ -21,7 +21,12 @@ Commands:
 Author: Daniel J Rita (BATDAN)
 """
 
+# Auto-switch to Python 3.11 for PyAudio compatibility
 import sys
+if sys.version_info[:2] != (3, 11):
+    import subprocess
+    result = subprocess.run(['py', '-3.11', __file__] + sys.argv[1:])
+    sys.exit(result.returncode)
 import logging
 import subprocess
 import time
@@ -336,9 +341,10 @@ class AlfredTerminal:
         """Show Alfred's greeting with personal recognition"""
         self.console.print()
         self.console.print(Panel(
-            "[bold cyan]ALFRED-UBX[/bold cyan] v3.0.0\n"
-            "[dim]The Distinguished British Butler AI[/dim]\n"
-            "[dim]With Complete Sensory Integration[/dim]",
+            "[bold magenta]★ ALFRED-PRIME ★[/bold magenta] v3.0.0\n"
+            "[bold yellow]BATDAN's Elite Personal AI[/bold yellow]\n"
+            "[dim]The Distinguished American Butler AI (with British Accent)[/dim]\n"
+            "[dim]Master Controller | Full Sensory Integration | Unrestricted Mode[/dim]",
             border_style="blue",
             box=box.DOUBLE
         ))
@@ -435,6 +441,11 @@ class AlfredTerminal:
             '/stop_listening': self._cmd_stop_listening,
             '/joe': self._cmd_joe_dog,
             '/status': self._cmd_status,
+            # ALFRED-PRIME Master Control
+            '/hierarchy': self._cmd_hierarchy,
+            '/control': self._cmd_control,
+            '/instances': self._cmd_instances,
+            '/imagine': self._cmd_imagine,
             # Patent-pending technologies
             '/cortex': self._cmd_cortex,
             '/ultrathunk': self._cmd_ultrathunk,
@@ -484,8 +495,8 @@ class AlfredTerminal:
                     # Soft warning - proceed but note the concern
                     self.console.print(f"[dim yellow]{ethics_result.message}[/dim yellow]")
 
-            # Get conversation context from brain
-            context = self.brain.get_conversation_context(limit=5)
+            # Get conversation context from brain (minimal to avoid repetition)
+            context = self.brain.get_conversation_context(limit=2)
 
             # Search brain's knowledge for relevant information
             user_input_lower = user_input.lower()
@@ -534,11 +545,11 @@ class AlfredTerminal:
                 except Exception as e:
                     self.logger.warning(f"Knowledge search failed: {e}")
 
-            # Add knowledge to context if found
+            # Add knowledge to context if found (keep minimal to avoid bloat)
             if knowledge_context:
-                context_text = "\n\n[ALFRED'S BRAIN KNOWLEDGE - CRITICAL INFORMATION]:\n"
-                for k in knowledge_context[:5]:  # Top 5 most relevant
-                    context_text += f"- {k['category']}/{k['key']}: {k['value']} (importance: {k['importance']}/10)\n"
+                # Only include top 2 most relevant, keep it brief
+                context_text = "\n[KNOWN]: "
+                context_text += "; ".join([f"{k['key']}={k['value']}" for k in knowledge_context[:2]])
                 context_text += "\n"
 
                 # Prepend knowledge to context
@@ -553,8 +564,7 @@ class AlfredTerminal:
             if self.tool_mode_enabled:
                 self._handle_conversation_with_tools(user_input, context)
             else:
-                # Regular mode - simple generation
-                self.console.print("[dim]Alfred is thinking...[/dim]")
+                # Regular mode - just generate (no announcement)
                 response = self.ai.generate(user_input, context)
 
                 if response:
@@ -728,6 +738,7 @@ class AlfredTerminal:
 - Use `/remember` to teach Alfred your face
 - Use `/learn_voice` to teach Alfred your voice
 - Alfred will only respond to BATDAN's voice when learned
+- Press **Escape** to interrupt Alfred while he's speaking
 - Press Ctrl+C to interrupt any operation
 """
 
@@ -1392,7 +1403,7 @@ class AlfredTerminal:
 
     def _cmd_status(self, command: str):
         """Show complete system status including sensory capabilities"""
-        table = Table(title="🤖 ALFRED-UBX System Status", box=box.ROUNDED)
+        table = Table(title="👑 ALFRED-PRIME Elite System Status", box=box.ROUNDED)
         table.add_column("Component", style="cyan")
         table.add_column("Status", style="green")
         table.add_column("Details", style="dim")
@@ -1808,6 +1819,92 @@ class AlfredTerminal:
         self.console.print("  [green]ENCOURAGED[/green] - Peace, love, sustainability, protection")
 
         self._safe_speak("Joe Dog's Rule is active and protecting all life, sir.", VoicePersonality.INFORMATION)
+
+    def _cmd_hierarchy(self, command: str):
+        """Display ALFRED SYSTEMS hierarchy"""
+        try:
+            from core.master_controller import MasterController
+            controller = MasterController(brain=self.brain)
+            self.console.print(controller.get_hierarchy_summary())
+        except Exception as e:
+            self.console.print(f"[red]Error loading hierarchy: {e}[/red]")
+
+    def _cmd_control(self, command: str):
+        """Master control interface for ALFRED-PRIME"""
+        try:
+            from core.master_controller import MasterController
+            controller = MasterController(brain=self.brain)
+            parts = command.split()
+            if len(parts) < 2:
+                self.console.print(Panel(
+                    "[bold magenta]★ ALFRED-PRIME Master Control ★[/bold magenta]\n\n"
+                    "[cyan]Commands:[/cyan]\n"
+                    "  /control scan <instance>    - Security scan an instance\n"
+                    "  /control status <instance>  - Get instance status\n"
+                    "  /control audit              - View audit log\n"
+                    "  /control grant <user> <tier> - Grant clearance\n\n"
+                    "[dim]Available instances: ALFRED-PRIME, ALFRED_UBX, ALFRED_ULTIMATE[/dim]",
+                    title="Master Control", border_style="magenta"
+                ))
+                return
+            subcommand = parts[1].lower()
+            if subcommand == "scan":
+                target = parts[2] if len(parts) > 2 else "ALFRED_UBX"
+                results = controller.scan_instance(target)
+                self.console.print(f"\n[bold]Security Scan: {target}[/bold]")
+                for check in results.get("checks", []):
+                    status_color = "green" if check["status"] == "pass" else "yellow" if check["status"] == "warning" else "red"
+                    self.console.print(f"  [{status_color}]{check['status'].upper()}[/{status_color}] {check['check']}: {check['details']}")
+            elif subcommand == "audit":
+                log = controller.get_audit_log(10)
+                self.console.print("\n[bold]Recent Audit Log[/bold]")
+                for entry in log:
+                    self.console.print(f"  [{entry['timestamp'][:19]}] {entry['action']}: {entry['details']}")
+        except Exception as e:
+            self.console.print(f"[red]Master control error: {e}[/red]")
+
+    def _cmd_instances(self, command: str):
+        """List all ALFRED instances"""
+        try:
+            from core.master_controller import MasterController
+            controller = MasterController(brain=self.brain)
+            instances = controller.list_all_instances()
+            table = Table(title="👑 ALFRED SYSTEMS Instances", box=box.ROUNDED)
+            table.add_column("Instance", style="cyan")
+            table.add_column("Tier", style="magenta")
+            table.add_column("Status", style="green")
+            for inst in instances:
+                if inst:
+                    table.add_row(inst["name"], f"{inst['tier']} (L{inst['tier_level']})",
+                        "✅ Active" if inst.get("path_exists") else "⚠️ Path missing")
+            self.console.print(table)
+        except Exception as e:
+            self.console.print(f"[red]Error listing instances: {e}[/red]")
+
+    def _cmd_imagine(self, command: str):
+        """Generate images via SwarmUI"""
+        try:
+            from capabilities.generation.swarmui_client import SwarmUIClient
+        except ImportError:
+            self.console.print("[red]SwarmUI client not available[/red]")
+            return
+        parts = command.split(maxsplit=1)
+        if len(parts) < 2:
+            self.console.print("[yellow]Usage: /imagine <prompt>[/yellow]")
+            return
+        prompt = parts[1]
+        client = SwarmUIClient()
+        if not client.is_available():
+            self.console.print("[red]SwarmUI server not running at http://localhost:7801[/red]")
+            return
+        self.console.print(f"[cyan]Generating image for:[/cyan] {prompt}")
+        with self.console.status("[bold green]Generating..."):
+            image_path = client.generate_image(prompt=prompt)
+        if image_path:
+            image_url = client.get_image_url(image_path)
+            self.console.print(f"[green]Image generated![/green]\n  URL: {image_url}")
+        else:
+            self.console.print("[red]Image generation failed[/red]")
 
     def _cmd_exit(self, command: str):
         """Exit Alfred"""

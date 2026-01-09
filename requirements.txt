@@ -33,6 +33,7 @@ sounddevice>=0.4.6
 
 # ===== Voice - Text-to-Speech =====
 edge-tts>=6.1.0
+pygame>=2.5.0  # For interruptible audio playback (Escape key support)
 
 # ===== Database =====
 aiosqlite>=0.20.0

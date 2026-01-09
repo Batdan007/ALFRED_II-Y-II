@@ -20,10 +20,30 @@ import asyncio
 import subprocess
 import tempfile
 import os
+import threading
+import time
 from enum import Enum
 from typing import Optional
 import pyttsx3
 import platform
+
+# Keyboard detection for interrupt (Windows)
+if platform.system() == 'Windows':
+    try:
+        import msvcrt
+        MSVCRT_AVAILABLE = True
+    except ImportError:
+        MSVCRT_AVAILABLE = False
+else:
+    MSVCRT_AVAILABLE = False
+
+# Pygame for interruptible audio playback
+try:
+    import pygame
+    pygame.mixer.init()
+    PYGAME_AVAILABLE = True
+except Exception:
+    PYGAME_AVAILABLE = False
 
 # Edge TTS (Microsoft high-quality voices - Ryan!)
 try:
@@ -141,6 +161,9 @@ class AlfredVoice:
         self.voice_selected = None
         self.enabled = True
         self.speaking = False
+        self.interrupt_requested = False  # Escape key interrupt flag
+        self._keyboard_monitor_thread = None
+        self._current_audio_file = None  # Track current audio for cleanup
 
         # Check Edge TTS availability (priority 1 on Windows)
         if EDGE_TTS_AVAILABLE and PLAYSOUND_AVAILABLE:
@@ -398,6 +421,8 @@ class AlfredVoice:
         if interrupt_current and self.speaking:
             self.stop_speaking()
 
+        # Reset interrupt flag for new speech
+        self.interrupt_requested = False
         self.speaking = True
 
         try:
@@ -427,9 +452,9 @@ class AlfredVoice:
             self.speaking = False
 
     def _speak_edge_tts(self, text: str) -> bool:
-        """Speak using Edge TTS (Microsoft Ryan - British male)"""
-        if not PLAYSOUND_AVAILABLE:
-            self.logger.debug("Edge TTS: playsound not available for MP3 playback")
+        """Speak using Edge TTS (Microsoft Ryan - British male) with Escape interrupt"""
+        if not PLAYSOUND_AVAILABLE and not PYGAME_AVAILABLE:
+            self.logger.debug("Edge TTS: no audio player available")
             return False
 
         try:
@@ -444,12 +469,22 @@ class AlfredVoice:
 
             # Generate audio file
             temp_path = asyncio.run(_generate_audio())
+            self._current_audio_file = temp_path
 
-            # Play audio synchronously using playsound (block=True ensures it waits)
             try:
-                playsound(temp_path, block=True)
+                # Priority 1: Use pygame for interruptible playback (Escape key support)
+                if PYGAME_AVAILABLE:
+                    self._play_audio_interruptible(temp_path)
+                    return True
+
+                # Priority 2: Fall back to playsound (no interrupt support)
+                if PLAYSOUND_AVAILABLE:
+                    playsound(temp_path, block=True)
+                    return True
+
             finally:
                 # Cleanup temp file
+                self._current_audio_file = None
                 try:
                     os.unlink(temp_path)
                 except Exception:
@@ -567,14 +602,86 @@ class AlfredVoice:
         return True
 
     def stop_speaking(self):
-        """Stop Alfred mid-sentence (he can be interrupted)"""
-        if self.speaking and self.engine:
+        """Stop Alfred mid-sentence (he can be interrupted with Escape key)"""
+        self.interrupt_requested = True
+
+        # Stop pygame audio if playing
+        if PYGAME_AVAILABLE:
+            try:
+                pygame.mixer.music.stop()
+            except Exception:
+                pass
+
+        # Stop pyttsx3 engine if running
+        if self.engine:
             try:
                 self.engine.stop()
-                self.speaking = False
-                self.logger.info("🤫 Alfred interrupted")
+            except Exception:
+                pass
+
+        if self.speaking:
+            self.speaking = False
+            self.logger.info("🤫 Alfred interrupted (Escape pressed)")
+
+    def _start_keyboard_monitor(self):
+        """Start background thread to monitor for Escape key"""
+        if not MSVCRT_AVAILABLE:
+            return
+
+        self.interrupt_requested = False
+        self._keyboard_monitor_thread = threading.Thread(
+            target=self._keyboard_monitor_loop,
+            daemon=True
+        )
+        self._keyboard_monitor_thread.start()
+
+    def _stop_keyboard_monitor(self):
+        """Stop the keyboard monitor thread"""
+        self.interrupt_requested = True  # Signal thread to stop
+        self._keyboard_monitor_thread = None
+
+    def _keyboard_monitor_loop(self):
+        """Monitor for Escape key press while speaking"""
+        while self.speaking and not self.interrupt_requested:
+            if MSVCRT_AVAILABLE:
+                try:
+                    if msvcrt.kbhit():
+                        key = msvcrt.getch()
+                        # Escape key is b'\x1b' (27)
+                        if key == b'\x1b':
+                            self.logger.info("Escape key detected - interrupting speech")
+                            self.stop_speaking()
+                            return
+                except Exception:
+                    pass
+            time.sleep(0.05)  # Check every 50ms
+
+    def _play_audio_interruptible(self, audio_path: str) -> bool:
+        """Play audio file with Escape key interrupt support"""
+        if PYGAME_AVAILABLE:
+            try:
+                pygame.mixer.music.load(audio_path)
+                pygame.mixer.music.play()
+
+                # Wait for playback to finish or interrupt
+                while pygame.mixer.music.get_busy() and not self.interrupt_requested:
+                    if MSVCRT_AVAILABLE:
+                        try:
+                            if msvcrt.kbhit():
+                                key = msvcrt.getch()
+                                if key == b'\x1b':  # Escape
+                                    pygame.mixer.music.stop()
+                                    self.logger.info("🤫 Alfred interrupted (Escape)")
+                                    return False
+                        except Exception:
+                            pass
+                    time.sleep(0.05)
+
+                return not self.interrupt_requested
             except Exception as e:
-                self.logger.error(f"Failed to stop speaking: {e}")
+                self.logger.debug(f"Pygame playback failed: {e}")
+                return False
+        return False
 
     def enable(self):
         """Enable Alfred's voice"""
