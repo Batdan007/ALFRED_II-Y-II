@@ -8,7 +8,7 @@ interaction, commerce, and coordination without human intermediaries.
 
 Patent Status: TO BE FILED Q2 2025
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 
 PATENT PENDING - DO NOT DISTRIBUTE
 """

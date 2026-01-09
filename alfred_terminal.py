@@ -1520,7 +1520,7 @@ class AlfredTerminal:
 
         self.console.print(table)
         self.console.print(f"\n[dim]Total: {stats['total_memories']} / {stats['storage_bound']} ({stats['utilization']}% utilized)[/dim]")
-        self.console.print("[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+        self.console.print("[dim]PATENT PENDING - GxEum Technologies / CAMDAN Enterprizes[/dim]")
 
     def _cmd_ultrathunk(self, command: str):
         """Show ULTRATHUNK compression statistics"""
@@ -1548,7 +1548,7 @@ class AlfredTerminal:
             for thunk_type, count in stats['by_type'].items():
                 self.console.print(f"  {thunk_type}: {count}")
 
-        self.console.print("\n[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+        self.console.print("\n[dim]PATENT PENDING - GxEum Technologies / CAMDAN Enterprizes[/dim]")
 
     def _cmd_guardian(self, command: str):
         """Show ALFREDGuardian IP protection status"""
@@ -1595,7 +1595,7 @@ class AlfredTerminal:
             self.console.print(f"  [green]{cap.name}[/green]: {cap.description}")
             self.console.print(f"    [dim]Latency: {cap.latency_ms}ms | Reliability: {cap.reliability:.1%}[/dim]")
 
-        self.console.print("\n[dim]PATENT PENDING - CAMDAN Enterprises LLC[/dim]")
+        self.console.print("\n[dim]PATENT PENDING - GxEum Technologies / CAMDAN Enterprizes[/dim]")
 
     def _cmd_unified(self, command: str):
         """Show Unified Memory statistics"""

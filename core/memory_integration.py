@@ -13,7 +13,7 @@ Flow:
 4. Brain queries can use CORTEX for fast recent recall
 
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 
 PATENT PENDING - DO NOT DISTRIBUTE
 """

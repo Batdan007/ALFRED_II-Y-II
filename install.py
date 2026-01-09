@@ -13,7 +13,7 @@ Usage:
 After install, just type: alfred
 
 Author: Daniel J. Rita (BATDAN)
-Patent-pending technology - CAMDAN Enterprises LLC
+Patent-pending technology - GxEum Technologies / CAMDAN Enterprizes
 
 IMPORTANT: Requires Python 3.11 or 3.12 (NOT 3.13/3.14)
 Many packages don't have pre-built wheels for Python 3.13+
@@ -367,7 +367,7 @@ class Installer:
         self.info(f"Downloading Whisper model ({WHISPER_MODEL})...")
 
         try:
-            from faster_whisper import WhisperModel
+            from faster_whisper import WhisperModel  # pyright: ignore[reportMissingImports]
 
             self.info("  Downloading ~150MB model (this may take a minute)...")
 
@@ -396,7 +396,7 @@ class Installer:
         self.info("Checking Ollama (local AI)...")
 
         try:
-            import requests
+            import requests  # type: ignore
             r = requests.get("http://localhost:11434/api/tags", timeout=3)
             if r.status_code == 200:
                 models = r.json().get('models', [])

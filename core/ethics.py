@@ -7,7 +7,7 @@ These principles are INVIOLABLE and cannot be overridden.
 "The measure of a civilization is how it treats its weakest members."
 
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 Dedicated to: Joe Dog (Forever in our hearts)
 """
 

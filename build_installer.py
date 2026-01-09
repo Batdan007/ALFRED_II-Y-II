@@ -26,7 +26,7 @@ from pathlib import Path
 # Configuration
 APP_NAME = "ALFRED"
 APP_VERSION = "3.0.0"
-APP_PUBLISHER = "CAMDAN Enterprises LLC"
+APP_PUBLISHER = "GxEum Technologies / CAMDAN Enterprizes"
 APP_AUTHOR = "Daniel J Rita (BATDAN)"
 APP_URL = "https://github.com/Batdan007/ALFRED_II-Y-II"
 

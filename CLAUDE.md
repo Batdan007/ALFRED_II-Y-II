@@ -66,10 +66,12 @@ Cloud providers require explicit user approval via `PrivacyController`.
 
 | Directory | Purpose |
 |-----------|---------|
-| `core/` | Patent-pending technologies (Brain, CORTEX, ULTRATHUNK, Guardian, NEXUS) |
+| `core/` | Patent-pending technologies (Brain, CORTEX, ULTRATHUNK, Guardian, NEXUS, Agents) |
 | `ai/` | Multi-model orchestration (`multimodel.py`) and provider clients |
 | `capabilities/` | Features: voice/, knowledge/, rag/, vision/, fabric/ (243 patterns) |
 | `tools/` | Tool management and implementations |
+| `skills/` | PAI-inspired skill routing with SKILL.md files (USE WHEN triggers) |
+| `telos/` | Goal framework: MISSION.md, GOALS.md, BELIEFS.md, LEARNED.md, PROJECTS.md |
 | `mcp/` | 5 MCP servers with 46 tools for Claude Code integration |
 | `variants/` | Specialized entry points (enhanced, unified, live, rag) |
 
@@ -159,5 +161,48 @@ Copy `mcp/claude_code_config.json` to Claude Code config. Servers:
 | Guardian | `core/guardian.py` | Behavioral watermarking |
 | NEXUS | `core/nexus.py` | AI-to-AI communication protocol |
 
+## PAI-Inspired Features (New)
+
+### Skills System (`skills/`)
+Semantic routing based on "USE WHEN" triggers in SKILL.md files:
+```python
+from skills import create_skill_router
+router = create_skill_router()
+result = router.route("Scan example.com for vulnerabilities")
+# → Matches security skill with triggers: ['vuln', 'scan']
+```
+
+Available skills: `security`, `engineering`, `research`, `voice`, `memory`, `coding`
+
+### Named Agents (`core/agents.py`)
+Specialized agent personalities for different tasks:
+- **Engineer**: TDD, clean code, Python/TypeScript
+- **Researcher**: OSINT, fact verification, synthesis
+- **Architect**: System design, trade-offs, patterns
+- **SecurityExpert**: Pentesting, OWASP, vulnerability assessment
+- **Writer**: Documentation, tutorials, clear communication
+- **Analyst**: Data analysis, metrics, insights
+
+### TELOS Goal Framework (`telos/`)
+Structured goal tracking (inspired by PAI):
+- `MISSION.md` - Core purpose and directives
+- `GOALS.md` - Active projects and objectives
+- `BELIEFS.md` - Core values (Joe Dog's Rule, etc.)
+- `LEARNED.md` - Accumulated learnings
+- `PROJECTS.md` - Project status tracking
+
+### The 7-Phase Algorithm
+Applied at every scale:
+```
+OBSERVE → THINK → PLAN → BUILD → EXECUTE → VERIFY → LEARN
+```
+
+## Key Principles
+1. **Privacy First**: Local Ollama default, explicit consent for cloud
+2. **Bounded Growth**: CORTEX ensures storage never exceeds limits
+3. **Generative Compression**: ULTRATHUNK compresses while improving quality
+4. **Scaffolding Over Model**: System design matters more than raw AI capability
+5. **Global Butler**: British accent, born in Gary IN, serves humanity worldwide. Wise, concise, slightly sarcastic.
+
 ---
-**Author**: Daniel J Rita (BATDAN) | **Entity**: CAMDAN Enterprises LLC | **Version**: 3.0.0
+**Author**: Daniel J Rita (BATDAN) | **Entity**: GxEum Technologies / CAMDAN Enterprizes | **Version**: 3.0.0

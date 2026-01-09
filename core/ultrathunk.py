@@ -10,7 +10,7 @@ Example: 47 weather conversations (100KB) -> 1 Ultrathunk (156 bytes) -> Infinit
 
 Patent Status: TO BE FILED Q1 2025
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 
 PATENT PENDING - DO NOT DISTRIBUTE
 """

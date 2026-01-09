@@ -2,7 +2,7 @@
 
 ## CONFIDENTIAL & PROPRIETARY
 **Owner:** Daniel J Rita (BATDAN)
-**Entity:** CAMDAN Enterprises LLC
+**Entity:** GxEum Technologies / CAMDAN Enterprizes
 **Date:** December 2024
 **Status:** PATENT PENDING - DO NOT DISTRIBUTE
 
@@ -123,7 +123,7 @@ ALFRED SYSTEMS represents a comprehensive ecosystem of AI innovations spanning p
 ## LEGAL NOTICES
 
 ### Confidentiality
-This document contains proprietary information belonging to Daniel J Rita and CAMDAN Enterprises LLC.
+This document contains proprietary information belonging to Daniel J Rita and GxEum Technologies / CAMDAN Enterprizes.
 
 ### Patent Pending Status
 All technologies described herein are PATENT PENDING. Any use without permission may constitute infringement.

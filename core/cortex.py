@@ -6,7 +6,7 @@ The Forgetting Brain - A 5-layer memory architecture with active forgetting.
 
 Patent Status: TO BE FILED Q1 2025
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 
 PATENT PENDING - DO NOT DISTRIBUTE
 """
@@ -265,7 +265,7 @@ class CORTEX:
     4. Long-Term (days+) - Permanent store, 5% decay/month
     5. Archive (compressed) - Summaries only, 1% decay/year
 
-    Patent Pending - CAMDAN Enterprises LLC
+    Patent Pending - GxEum Technologies / CAMDAN Enterprizes
     """
 
     def __init__(self, db_path: Optional[str] = None):

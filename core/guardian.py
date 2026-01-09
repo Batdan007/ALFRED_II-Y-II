@@ -8,7 +8,7 @@ code transformation, rewriting, and reimplementation.
 
 Patent Status: TO BE FILED Q1 2025
 Author: Daniel J Rita (BATDAN)
-Copyright: CAMDAN Enterprises LLC
+Copyright: GxEum Technologies / CAMDAN Enterprizes
 
 PATENT PENDING - DO NOT DISTRIBUTE
 """
@@ -365,7 +365,7 @@ class ALFREDGuardian:
             'fingerprint_count': len(self.fingerprints),
             'generated_at': datetime.now().isoformat(),
             'owner': 'Daniel J Rita (BATDAN)',
-            'entity': 'CAMDAN Enterprises LLC',
+            'entity': 'GxEum Technologies / CAMDAN Enterprizes',
             'patent_status': 'PATENT PENDING',
             'fingerprints': {
                 'linguistic': len([f for f in self.fingerprints if f.fingerprint_type == FingerprintType.LINGUISTIC]),
