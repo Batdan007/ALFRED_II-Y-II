@@ -14,7 +14,14 @@ Just type 'alfred' anywhere!
 Author: Daniel J Rita (BATDAN)
 """
 
+# Auto-switch to Python 3.11 for PyAudio compatibility
 import sys
+if sys.version_info[:2] != (3, 11):
+    import subprocess
+    import os
+    result = subprocess.run(['py', '-3.11', '-m', 'alfred'] + sys.argv[1:])
+    sys.exit(result.returncode)
+
 import argparse
 import os
 
@@ -149,11 +156,15 @@ def main():
         epilog="""
 Examples:
   alfred                  # Full terminal mode (Ollama default)
+  alfred --listen         # Always-listen mode with wake words
   alfred --voice          # Voice mode - hands-free conversation
   alfred --cloud          # Enable cloud AI (Claude, OpenAI, etc.)
   alfred --local          # Force local-only (maximum privacy)
-  alfred --voice --cloud  # Voice with cloud AI fallback
+  alfred --listen --local # Always-listen, fully offline
   alfred --stats          # Show memory statistics
+
+Wake Words (for --listen mode):
+  "Hey Alfred", "Alfred", "Okay Alfred", "Computer", "Bat Computer"
 
 Privacy Modes:
   --local   Ollama only (100% private, no internet)
@@ -206,6 +217,12 @@ Patent-pending technology by Daniel J Rita (BATDAN).
         help='Force local-only mode (Ollama only, maximum privacy)'
     )
 
+    parser.add_argument(
+        '--listen',
+        action='store_true',
+        help='Start in always-listen mode with wake word detection'
+    )
+
     args = parser.parse_args()
 
     # Set environment variables for privacy mode
@@ -213,6 +230,10 @@ Patent-pending technology by Daniel J Rita (BATDAN).
         os.environ['ALFRED_PRIVACY_MODE'] = 'cloud'
     elif args.local:
         os.environ['ALFRED_PRIVACY_MODE'] = 'local'
+
+    # Set environment variable for listen mode
+    if args.listen:
+        os.environ['ALFRED_AUTO_LISTEN'] = '1'
 
     # Execute command
     try:

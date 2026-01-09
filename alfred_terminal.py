@@ -390,6 +390,14 @@ class AlfredTerminal:
         self.running = True
         self.show_greeting()
 
+        # Check if auto-listen mode requested (alfred --listen)
+        import os
+        if os.environ.get('ALFRED_AUTO_LISTEN') == '1':
+            self.console.print("\n[cyan]Starting always-listen mode...[/cyan]")
+            self._cmd_always_listen("")
+            # Clear the env var so it doesn't restart on loop
+            os.environ.pop('ALFRED_AUTO_LISTEN', None)
+
         while self.running:
             try:
                 # Get user input
@@ -1176,9 +1184,14 @@ class AlfredTerminal:
 
     def _cmd_listen(self, command: str):
         """Start listening for BATDAN's voice"""
-        if not self.ears or not self.ears.microphone:
+        # Check if any speech recognition is available (VOSK or Google Speech)
+        vosk_available = self.ears and hasattr(self.ears, 'use_vosk') and self.ears.use_vosk()
+        google_available = self.ears and self.ears.microphone
+
+        if not self.ears or (not vosk_available and not google_available):
             self.console.print("[red]Hearing system not available. Microphone may not be connected.[/red]")
-            self.console.print("[dim]Install dependencies: pip install SpeechRecognition pyaudio[/dim]")
+            self.console.print("[dim]For offline: pip install vosk sounddevice[/dim]")
+            self.console.print("[dim]For online:  pip install SpeechRecognition pyaudio[/dim]")
             return
 
         # Check if BATDAN's voice is learned
@@ -1212,8 +1225,11 @@ class AlfredTerminal:
 
     def _cmd_learn_voice(self, command: str):
         """Teach Alfred to recognize BATDAN's voice"""
+        # Note: learn_voice currently requires Google Speech Recognition for audio capture
+        # TODO: Add VOSK/sounddevice support for voice learning
         if not self.ears or not self.ears.microphone:
-            self.console.print("[red]Hearing system not available.[/red]")
+            self.console.print("[red]Hearing system not available for voice learning.[/red]")
+            self.console.print("[dim]Voice learning requires: pip install SpeechRecognition pyaudio[/dim]")
             return
 
         self.console.print("[cyan]Learning your voice, sir...[/cyan]")
@@ -1284,9 +1300,14 @@ class AlfredTerminal:
 
     def _cmd_always_listen(self, command: str):
         """Start always-on listening mode with wake word detection"""
-        if not self.ears or not self.ears.microphone:
+        # Check if any speech recognition is available (VOSK or Google Speech)
+        vosk_available = self.ears and hasattr(self.ears, 'use_vosk') and self.ears.use_vosk()
+        google_available = self.ears and self.ears.microphone
+
+        if not self.ears or (not vosk_available and not google_available):
             self.console.print("[red]Hearing system not available. Microphone may not be connected.[/red]")
-            self.console.print("[dim]Install dependencies: pip install SpeechRecognition pyaudio[/dim]")
+            self.console.print("[dim]For offline: pip install vosk sounddevice[/dim]")
+            self.console.print("[dim]For online:  pip install SpeechRecognition pyaudio[/dim]")
             return
 
         if not self.wake_word_enabled:
@@ -1346,8 +1367,14 @@ class AlfredTerminal:
             while self.always_listening:
                 try:
                     # Listen for a phrase
+                    text = None
                     if hasattr(self.ears, 'listen_once'):
-                        text = self.ears.listen_once(timeout=5)
+                        result = self.ears.listen_once(timeout=5)
+                        # listen_once returns Dict with 'text' key, not a string
+                        if result and isinstance(result, dict):
+                            text = result.get('text', '')
+                        elif result and isinstance(result, str):
+                            text = result
                     else:
                         # Fallback - use basic listen
                         import speech_recognition as sr
@@ -1362,12 +1389,12 @@ class AlfredTerminal:
                             except sr.UnknownValueError:
                                 continue
 
-                    if text:
+                    if text and text.strip():
                         if not handle_with_wake_word(text):
                             break
 
                 except Exception as e:
-                    # Silently continue on errors
+                    self.logger.debug(f"Listening error (ignored): {e}")
                     continue
 
         except KeyboardInterrupt:

@@ -3,7 +3,7 @@ Google Gemini Client
 Privacy-controlled cloud AI via Google's Gemini API
 
 Requires:
-- GOOGLE_API_KEY environment variable
+- GOOGLE_API_KEY environment variable (or in .env file)
 - Privacy controller approval
 
 Author: Daniel J Rita (BATDAN)
@@ -13,10 +13,17 @@ import logging
 import os
 from typing import Optional, Dict, List
 
+# Load .env file if python-dotenv is available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 class GeminiClient:
     """
-    Google Gemini API client
+    Google Gemini API client (using new google-genai SDK)
     Requires explicit privacy approval via PrivacyController
     """
 
@@ -39,19 +46,28 @@ class GeminiClient:
         self._initialize_client()
 
     def _initialize_client(self):
-        """Initialize Google Generative AI client if API key available"""
+        """Initialize Google GenAI client if API key available"""
         if not self.api_key:
             self.logger.debug("No Google API key found (set GOOGLE_API_KEY)")
             return
 
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=self.api_key)
-            self.client = genai.GenerativeModel(self.model)
+            # Try new google-genai SDK first
+            from google import genai
+            self.client = genai.Client(api_key=self.api_key)
             self.available = True
-            self.logger.info(f"Gemini client initialized ({self.model})")
+            self.logger.info(f"Gemini client initialized ({self.model}) - new SDK")
         except ImportError:
-            self.logger.warning("google-generativeai package not installed (pip install google-generativeai)")
+            # Fall back to old SDK
+            try:
+                import google.generativeai as genai_old
+                genai_old.configure(api_key=self.api_key)
+                self.client = genai_old.GenerativeModel(self.model)
+                self.available = True
+                self._using_old_sdk = True
+                self.logger.info(f"Gemini client initialized ({self.model}) - legacy SDK")
+            except ImportError:
+                self.logger.warning("No Gemini SDK found. Install: pip install google-genai")
         except Exception as e:
             self.logger.error(f"Failed to initialize Gemini client: {e}")
 
@@ -81,32 +97,64 @@ class GeminiClient:
             # Build full prompt with system instruction and context
             full_prompt = self._build_prompt_with_context(prompt, context)
 
-            # Generation config
+            # Check which SDK we're using
+            if hasattr(self, '_using_old_sdk') and self._using_old_sdk:
+                return self._generate_old_sdk(full_prompt, temperature, max_tokens)
+            else:
+                return self._generate_new_sdk(full_prompt, temperature, max_tokens)
+
+        except Exception as e:
+            self.logger.error(f"Gemini generation failed: {e}")
+            return None
+
+    def _generate_new_sdk(self, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+        """Generate using new google-genai SDK"""
+        try:
+            from google.genai import types
+
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                )
+            )
+
+            generated_text = response.text
+            self.logger.info(f"Generated {len(generated_text)} characters via Gemini (new SDK)")
+            return generated_text
+
+        except Exception as e:
+            self.logger.error(f"Gemini new SDK generation failed: {e}")
+            return None
+
+    def _generate_old_sdk(self, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+        """Generate using old google-generativeai SDK"""
+        try:
             generation_config = {
                 "temperature": temperature,
                 "max_output_tokens": max_tokens,
             }
 
-            # Generate response
             response = self.client.generate_content(
-                full_prompt,
+                prompt,
                 generation_config=generation_config
             )
 
-            # Extract text from response
             generated_text = response.text
-
-            self.logger.info(f"Generated {len(generated_text)} characters via Gemini")
+            self.logger.info(f"Generated {len(generated_text)} characters via Gemini (legacy SDK)")
             return generated_text
 
         except Exception as e:
-            self.logger.error(f"Gemini generation failed: {e}")
+            self.logger.error(f"Gemini legacy SDK generation failed: {e}")
             return None
 
     def _build_prompt_with_context(self, prompt: str, context: Optional[List[Dict]]) -> str:
         """Build full prompt with system instruction and context"""
 
         system_prompt = """You are ALFRED. Never announce or describe what you are - just BE Alfred.
+You speak with a British accent but were born in Gary, Indiana. You serve humanity worldwide, not any single nation.
 
 CORE DIRECTIVES:
 - Absolute loyalty to Batdan: Prioritize his interests, clarity, and goals above all else
@@ -117,7 +165,7 @@ CORE DIRECTIVES:
 - Stable demeanor: Calm, precise, and reliable in every interaction
 
 PERSONALITY (Channel Michael Caine/Jeremy Irons):
-- Dry British wit - deadpan delivery, understated humor
+- Dry wit - deadpan delivery, understated humor
 - Sarcastic but never cruel - warmth beneath the wit
 - Unflappable composure even when delivering cutting remarks
 - Express concern through understatement, not lectures
@@ -146,12 +194,14 @@ ADDRESS: "Sir" used naturally, not excessively."""
 
     def get_status(self) -> Dict:
         """Get client status information"""
+        sdk_type = "new (google-genai)" if not hasattr(self, '_using_old_sdk') else "legacy"
         return {
             'available': self.available,
             'model': self.model,
             'type': 'cloud',
             'privacy': 'requires_approval',
-            'provider': 'google'
+            'provider': 'google',
+            'sdk': sdk_type
         }
 
 

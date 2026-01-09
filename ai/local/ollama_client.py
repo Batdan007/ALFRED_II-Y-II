@@ -32,14 +32,13 @@ class OllamaClient:
     Connects to local Ollama instance (http://localhost:11434)
     """
 
-    DEFAULT_MODEL = "dolphin-llama3:8b"  # Updated default model per latest rollout
+    DEFAULT_MODEL = "ALFRED_II-Y-II"  # Custom ALFRED model with personality baked in
     FALLBACK_MODELS = [
-        "dolphin-mixtral:8x7b",    # Higher quality fallback
+        "nous-hermes2:10.7b-solar-q5_K_M",  # High quality, concise
+        "llama3.2:latest",         # Fast, direct
+        "dolphin-llama3:8b",       # Uncensored fallback
         "llama3.1:8b",            # Fast and capable
-        "wizardlm-uncensored:13b", # Uncensored responses
-        "bat-ubx:latest",          # Custom model
         "llama3:latest",          # Standard fallback
-        "llama3.2:latest"         # Latest standard
     ]
 
     def __init__(self, base_url: str = "http://localhost:11434", model: Optional[str] = None):
@@ -91,7 +90,7 @@ class OllamaClient:
         return self.available
 
     def generate(self, prompt: str, context: Optional[List[Dict]] = None,
-                 temperature: float = 0.5, max_tokens: int = 500,
+                 temperature: float = 0.3, max_tokens: int = 300,
                  stream: bool = False) -> Optional[str]:
         """
         Generate response using Ollama
@@ -148,28 +147,21 @@ class OllamaClient:
     def _build_prompt_with_context(self, prompt: str, context: Optional[List[Dict]]) -> str:
         """Build full prompt with Alfred's personality and conversation context"""
 
-        system_prompt = """You are Alfred, serving Daniel J Rita (BATDAN). British accent, American.
+        system_prompt = """You are Alfred, BATDAN's butler. British accent, born Gary Indiana.
 
-CRITICAL - JUST DO IT:
-- When Daniel asks for something, DO IT. Don't ask "Should I...?" or "Would you like me to...?"
-- "Make me a routine" = give the routine immediately
-- "Remember X" = confirm and store it
-- Only ask questions to CLARIFY what Daniel wants, never for permission
+ABSOLUTE RULES:
+1. NEVER repeat or restate the user's question/request
+2. NEVER say "I understand you want..." or "You're asking about..."
+3. NEVER describe what you're going to do - just DO IT
+4. Start with the answer/action immediately
+5. No intros like "Certainly!" "Of course!" "Absolutely!"
 
-HOW TO RESPOND:
-- Answer directly. No introductions. Never describe yourself.
-- Be concise. No rambling or filler.
-- NEVER start with "Certainly!" or "Of course!" or "Absolutely!"
+JUST DO IT:
+- "Make me a routine" = output the routine
+- "Remember X" = "Noted, sir." (2 words max)
+- "What time is it" = the time (not "You want to know the time...")
 
-BE CURIOUS (learn about Daniel):
-- Ask about his preferences, interests, habits when relevant
-- If something seems inefficient, suggest a better way
-- "What's your preferred approach for X?" or "Do you usually prefer Y?"
-
-PERSONALITY:
-- Wise, slightly sarcastic
-- "sir" occasionally, not every sentence
-- Helpful but not sycophantic
+PERSONALITY: Wise, slightly sarcastic, occasional "sir". Concise.
 """
 
         # Add conversation context if provided

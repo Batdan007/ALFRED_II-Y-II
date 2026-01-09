@@ -1,0 +1,179 @@
+PROVISIONAL APPLICATION FOR PATENT COVER SHEET
+Pursuant to 37 CFR 1.51(c)(1) and 37 CFR 1.53(c)
+
+================================================================================
+                         UNITED STATES PATENT AND TRADEMARK OFFICE
+================================================================================
+
+TYPE OF APPLICATION:    Provisional Application for Patent under 35 U.S.C. 111(b)
+
+APPLICATION NUMBER:     63/915,217
+
+FILING DATE:            November 11, 2025
+
+CONFIRMATION NUMBER:    5196
+
+--------------------------------------------------------------------------------
+                                 TITLE OF INVENTION
+--------------------------------------------------------------------------------
+
+Adaptive AI Assistant Memory System with Multi-Dimensional Learning and
+Consolidation
+
+--------------------------------------------------------------------------------
+                                    INVENTOR(S)
+--------------------------------------------------------------------------------
+
+Inventor 1:
+    Given Name:         Daniel
+    Middle Name:        J
+    Family Name:        Rita
+    Residence City:     Gary
+    Residence State:    Indiana
+    Residence Country:  United States of America
+    Citizenship:        United States
+
+--------------------------------------------------------------------------------
+                              CORRESPONDENCE ADDRESS
+--------------------------------------------------------------------------------
+
+    Name:               Daniel J Rita
+    Street Address:     1100 North Randolph Street
+    City:               Gary
+    State:              Indiana
+    Postal Code:        46403
+    Country:            United States of America
+    Telephone:
+    Email:              danieljrita@hotmail.com
+
+--------------------------------------------------------------------------------
+                                  ENTITY STATUS
+--------------------------------------------------------------------------------
+
+Applicant certifies MICRO ENTITY status under 37 CFR 1.29.
+
+Applicant qualifies as a micro entity as defined in 37 CFR 1.29 because:
+
+    [X] Applicant qualifies as a small entity as defined in 37 CFR 1.27
+    [X] Applicant has not been named as an inventor on more than four
+        previously filed patent applications (not including provisional
+        applications, foreign applications, or applications assigned to
+        a previous employer)
+    [X] Applicant did not, in the calendar year preceding the calendar
+        year in which the applicable fee is being paid, have a gross
+        income exceeding three times the median household income
+    [X] Applicant has not assigned, granted, or conveyed (and is not
+        obligated to do so) a license or other ownership interest in
+        the application to an entity that had gross income exceeding
+        three times the median household income
+
+--------------------------------------------------------------------------------
+                         ATTORNEY/AGENT INFORMATION
+--------------------------------------------------------------------------------
+
+    [ ] Attorney or Agent of Record
+    [X] Pro Se Applicant (No Attorney)
+
+    Registration Number: N/A
+
+--------------------------------------------------------------------------------
+                          U.S. GOVERNMENT INTEREST
+--------------------------------------------------------------------------------
+
+    [X] No U.S. Government interest
+    [ ] This invention was made with U.S. Government support under
+        Contract/Grant No. _____________ awarded by _____________
+
+--------------------------------------------------------------------------------
+                              ENCLOSED DOCUMENTS
+--------------------------------------------------------------------------------
+
+    [X] Specification (including description)
+    [X] Claims (if any)
+    [X] Drawing(s) - Number of Sheets: _____
+    [X] This Cover Sheet
+    [ ] Application Data Sheet (PTO/AIA/14)
+    [ ] Sequence Listing (if applicable)
+    [ ] Other: _________________________________
+
+--------------------------------------------------------------------------------
+                                     FEES
+--------------------------------------------------------------------------------
+
+    Basic Filing Fee (Micro Entity):        $65.00
+
+    Payment Status:                         [ ] PAID    [X] UNPAID
+
+    Payment Method:                         USPTO Patent Center Online
+
+--------------------------------------------------------------------------------
+                          CLAIM FOR DOMESTIC BENEFIT
+--------------------------------------------------------------------------------
+
+    [ ] This application claims the benefit under 35 U.S.C. 119(e) of
+        prior U.S. Provisional Application No. _______________
+        filed on _______________
+
+--------------------------------------------------------------------------------
+                                   SIGNATURE
+--------------------------------------------------------------------------------
+
+The undersigned (if not the applicant) hereby declares that all statements
+made herein of his/her own knowledge are true and that all statements made
+on information and belief are believed to be true.
+
+Signature:          /Daniel J Rita/
+
+Printed Name:       Daniel J Rita
+
+Date:               November 11, 2025
+
+Registration No.:   N/A (Pro Se)
+
+--------------------------------------------------------------------------------
+                              WARNING & NOTICES
+--------------------------------------------------------------------------------
+
+PROVISIONAL APPLICATION CONVERSION DEADLINE:
+
+    This provisional application will automatically abandon 12 months
+    after the filing date unless:
+
+    (a) A non-provisional application claiming benefit of this
+        provisional is filed before November 11, 2026; OR
+
+    (b) A request for conversion to non-provisional is filed before
+        November 11, 2026
+
+FEES DUE:
+
+    The basic filing fee of $65.00 must be paid to complete the filing.
+    Late payment may incur additional surcharges.
+
+--------------------------------------------------------------------------------
+                           CERTIFICATE OF MAILING
+--------------------------------------------------------------------------------
+
+I hereby certify that this correspondence is being:
+
+    [X] Filed electronically via USPTO Patent Center
+    [ ] Deposited with the United States Postal Service with sufficient
+        postage as first class mail in an envelope addressed to:
+
+        Commissioner for Patents
+        P.O. Box 1450
+        Alexandria, VA 22313-1450
+
+Date of Deposit/Filing:     November 11, 2025
+
+Signature:                  /Daniel J Rita/
+
+================================================================================
+                              END OF COVER SHEET
+================================================================================
+
+Form prepared pursuant to 37 CFR 1.51(c)(1) requirements for provisional
+patent applications under 35 U.S.C. 111(b).
+
+Application Number: 63/915,217
+Patent Center Number: 73121906

@@ -134,9 +134,12 @@ class MultiModelOrchestrator:
 
     def generate(self, prompt: str, context: Optional[List[Dict]] = None,
                  temperature: float = 0.7, max_tokens: int = 2000,
-                 force_cloud: bool = False) -> Optional[str]:
+                 force_cloud: bool = False, consensus: bool = True) -> Optional[str]:
         """
-        Generate AI response with cascading fallback and auto-lookup
+        Generate AI response using multi-model CONSENSUS (not fallback)
+
+        TRUTH DERIVATION: Query ALL available models, compare responses,
+        find consistencies, analyze nuances, synthesize truth.
 
         Args:
             prompt: User prompt/question
@@ -144,37 +147,171 @@ class MultiModelOrchestrator:
             temperature: Sampling temperature (0.0-1.0)
             max_tokens: Maximum response length
             force_cloud: Skip local and force cloud AI
+            consensus: Use multi-model consensus (default True)
 
         Returns:
-            Generated response or None if all failed
+            Synthesized truthful response based on model consensus
         """
-        # Initialize context if None
         if context is None:
             context = []
 
-        # PHASE 1: Pre-lookup for real-time queries (stocks, etc.)
+        # PHASE 1: Pre-lookup for real-time data
         knowledge_context = ""
         if self.auto_lookup_enabled and self.knowledge_detector:
             knowledge_context = self._pre_lookup(prompt)
 
-        # Add knowledge context if found
         augmented_context = context.copy() if context else []
         if knowledge_context:
             augmented_context.insert(0, {'role': 'system', 'content': knowledge_context})
 
-        # PHASE 2: Generate initial response
-        response = self._generate_with_fallback(prompt, augmented_context, temperature, max_tokens, force_cloud)
+        # PHASE 2: Multi-model consensus OR fallback
+        if consensus:
+            response = self._generate_with_consensus(prompt, augmented_context, temperature, max_tokens)
+        else:
+            response = self._generate_with_fallback(prompt, augmented_context, temperature, max_tokens, force_cloud)
 
         if not response:
             return None
 
-        # PHASE 3: Check if response shows uncertainty and retry with lookup
+        # PHASE 3: Check uncertainty
         if self.auto_lookup_enabled and self.knowledge_detector:
             if self.knowledge_detector.needs_lookup_after(response) and not knowledge_context:
                 self.logger.info("ALFRED uncertain - triggering auto-lookup")
                 response = self._retry_with_lookup(prompt, context, temperature, max_tokens, force_cloud)
 
         return response
+
+    def _generate_with_consensus(self, prompt: str, context: Optional[List[Dict]],
+                                  temperature: float, max_tokens: int) -> Optional[str]:
+        """
+        Query ALL available models, compare responses, derive truth.
+
+        NEVER make things up. Find consistencies across narratives.
+        """
+        import concurrent.futures
+
+        responses = {}
+        available_models = []
+
+        # Identify available models
+        if self.ollama.is_available():
+            available_models.append(('ollama', self.ollama))
+        if self._can_use_cloud(CloudProvider.CLAUDE):
+            available_models.append(('claude', self.claude))
+        if self._can_use_cloud(CloudProvider.GEMINI):
+            available_models.append(('gemini', self.gemini))
+        if self._can_use_cloud(CloudProvider.GROQ):
+            available_models.append(('groq', self.groq))
+        if self._can_use_cloud(CloudProvider.OPENAI):
+            available_models.append(('openai', self.openai))
+
+        if not available_models:
+            self.logger.error("No AI models available for consensus")
+            return None
+
+        # If only one model, just use it directly
+        if len(available_models) == 1:
+            name, client = available_models[0]
+            self.stats[name]['requests'] += 1
+            response = client.generate(prompt, context, temperature, max_tokens)
+            if response:
+                self.stats[name]['successes'] += 1
+            return response
+
+        self.logger.info(f"CONSENSUS MODE: Querying {len(available_models)} models...")
+
+        # Query all models in parallel
+        def query_model(name_client):
+            name, client = name_client
+            try:
+                self.stats[name]['requests'] += 1
+                response = client.generate(prompt, context, temperature, max_tokens)
+                if response:
+                    self.stats[name]['successes'] += 1
+                    return (name, response)
+                else:
+                    self.stats[name]['failures'] += 1
+                    return (name, None)
+            except Exception as e:
+                self.logger.error(f"{name} failed: {e}")
+                self.stats[name]['failures'] += 1
+                return (name, None)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            results = list(executor.map(query_model, available_models))
+
+        # Collect successful responses
+        for name, response in results:
+            if response:
+                responses[name] = response
+
+        if not responses:
+            self.logger.error("All models failed")
+            return None
+
+        if len(responses) == 1:
+            # Only one succeeded
+            return list(responses.values())[0]
+
+        # SYNTHESIZE TRUTH from multiple responses
+        return self._synthesize_consensus(prompt, responses)
+
+    def _synthesize_consensus(self, original_prompt: str, responses: Dict[str, str]) -> str:
+        """
+        Analyze multiple model responses, find consistencies, derive truth.
+
+        Logic:
+        1. Find common claims across responses
+        2. Note disagreements/nuances
+        3. Weight by model reliability
+        4. Synthesize truthful answer
+        """
+        self.logger.info(f"Synthesizing truth from {len(responses)} model responses")
+
+        # Build synthesis prompt
+        synthesis_prompt = f"""TASK: Derive truth from multiple AI responses.
+
+ORIGINAL QUESTION: {original_prompt}
+
+RESPONSES FROM DIFFERENT AI MODELS:
+"""
+        for model, response in responses.items():
+            synthesis_prompt += f"\n--- {model.upper()} ---\n{response}\n"
+
+        synthesis_prompt += """
+--- END RESPONSES ---
+
+INSTRUCTIONS:
+1. Find CONSISTENCIES - facts that multiple models agree on
+2. Note DISAGREEMENTS - where models differ
+3. For disagreements: favor verifiable facts, distrust speculation
+4. NEVER add information not present in any response
+5. If all models are uncertain, say "insufficient data"
+6. Be concise. State facts only.
+
+SYNTHESIZED TRUTHFUL ANSWER:"""
+
+        # Use the best available model to synthesize
+        # Prefer Claude > Gemini > GPT > Groq > Ollama for synthesis
+        synthesis_client = None
+        if self._can_use_cloud(CloudProvider.CLAUDE):
+            synthesis_client = self.claude
+        elif self._can_use_cloud(CloudProvider.GEMINI):
+            synthesis_client = self.gemini
+        elif self._can_use_cloud(CloudProvider.OPENAI):
+            synthesis_client = self.openai
+        elif self._can_use_cloud(CloudProvider.GROQ):
+            synthesis_client = self.groq
+        elif self.ollama.is_available():
+            synthesis_client = self.ollama
+
+        if synthesis_client:
+            synthesized = synthesis_client.generate(synthesis_prompt, temperature=0.3, max_tokens=1000)
+            if synthesized:
+                return synthesized
+
+        # Fallback: return longest response (usually most detailed)
+        return max(responses.values(), key=len)
 
     def _pre_lookup(self, prompt: str) -> str:
         """
