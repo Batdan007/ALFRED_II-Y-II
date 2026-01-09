@@ -1,94 +1,109 @@
-# ALFRED II-Y-II
+# ALFRED
 
 <div align="center">
 
-```
-    _    _     _____ ____  _____ ____    ___ ___ __   __ ___ ___
-   / \  | |   |  ___|  _ \| ____|  _ \  |_ _|_ _|\ \ / /|_ _|_ _|
-  / _ \ | |   | |_  | |_) |  _| | | | |  | | | |  \ V /  | | | |
- / ___ \| |___|  _| |  _ <| |___| |_| |  | | | |   | |   | | | |
-/_/   \_\_____|_|   |_| \_\_____|____/  |___|___|  |_|  |___|___|
-```
+<img src="https://img.shields.io/badge/AI-Privacy%20First-green?style=for-the-badge" alt="Privacy First"/>
+<img src="https://img.shields.io/badge/Memory-Persistent-blue?style=for-the-badge" alt="Persistent Memory"/>
+<img src="https://img.shields.io/badge/Voice-Enabled-purple?style=for-the-badge" alt="Voice Enabled"/>
+<img src="https://img.shields.io/badge/Patent-Pending-orange?style=for-the-badge" alt="Patent Pending"/>
 
-**The Ultimate AI Butler - ALFRED_UBX + Alfred_Ultimate Merged**
+### Your AI butler that actually remembers you.
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
-[![Patent](https://img.shields.io/badge/patent-pending-orange.svg)](PATENT_TRACKING.md)
+**Privacy-first. Runs locally. Never forgets what matters.**
 
-*Created by Daniel J. Rita (BATDAN)*
+[Quick Start](#quick-start) | [Features](#what-makes-alfred-different) | [Demo](#demo) | [Documentation](CLAUDE.md)
 
 </div>
 
 ---
 
-## What Makes This Special
+## The Problem
 
-ALFRED II-Y-II combines the best of both worlds:
+Every AI assistant has amnesia. You explain your preferences, your projects, your context - and next session? Gone. You're a stranger again.
 
-| Feature | Source | Description |
-|---------|--------|-------------|
-| **11-Table Brain** | Both | Patent-pending persistent memory |
-| **5 MCP Servers** | UBX | 46 tools for Claude Code |
-| **243 Fabric Patterns** | Ultimate | Expert AI prompts |
-| **Multi-Model Orchestrator** | UBX | 5 AI providers with fallback |
-| **ChromaDB RAG** | Ultimate | Semantic vector search |
-| **User Recognition** | Ultimate | Voice/face identification |
-| **Privacy Controller** | UBX | LOCAL/HYBRID/CLOUD modes |
-| **Web UI Dashboard** | Ultimate | Mission Control interface |
+Cloud AI services store your data on their servers. You have no control, no privacy, no ownership.
+
+**ALFRED fixes both.**
 
 ---
 
-## System Requirements
+## What Makes ALFRED Different
 
-### Minimum (Text-only mode)
-| Component | Requirement |
-|-----------|-------------|
-| **CPU** | 4 cores, 2.0 GHz |
-| **RAM** | 8 GB |
-| **Storage** | 5 GB free |
-| **Python** | 3.11 or 3.12 (NOT 3.13/3.14) |
-| **OS** | Windows 10+, macOS 11+, Linux |
+### 1. Persistent Memory (Patent-Pending)
+ALFRED has an 11-table brain that remembers:
+- Your conversations and context
+- Your preferences and patterns
+- What worked and what didn't
+- Knowledge you've shared
 
-### Recommended (Full Voice + Local AI)
-| Component | Requirement |
-|-----------|-------------|
-| **CPU** | 8+ cores, 3.0 GHz |
-| **RAM** | 16 GB (32 GB for large models) |
-| **GPU** | NVIDIA RTX 3060+ (6GB VRAM) for GPU acceleration |
-| **Storage** | 20 GB free (for Ollama models) |
-| **Python** | 3.11 (best compatibility) |
-| **FFmpeg** | Required for voice |
+```
+"Remember that I prefer dark mode and hate verbose responses"
+→ Stored forever. Never ask again.
+```
 
-### Software Dependencies
-| Software | Purpose | Install |
-|----------|---------|---------|
-| **Python 3.11** | Runtime | [python.org](https://python.org) |
-| **Ollama** | Local AI (privacy-first) | [ollama.com](https://ollama.com) |
-| **FFmpeg** | Voice processing | `winget install ffmpeg` |
-| **CUDA** | GPU acceleration (optional) | [nvidia.com](https://developer.nvidia.com/cuda-downloads) |
+### 2. Privacy First
+- **Local by default** - Runs on Ollama, your machine, your data
+- **Cloud optional** - Claude, Gemini, Groq, OpenAI available with explicit consent
+- **Your data stays yours** - SQLite database on your disk
+
+### 3. Bounded Growth
+Most AI memory systems grow forever until they break. ALFRED has **CORTEX** - a 5-layer forgetting system that keeps memory bounded while preserving what matters.
+
+### 4. Multi-Modal
+- **Voice** - British butler TTS (Microsoft Ryan) + offline speech recognition
+- **Vision** - Camera integration with face recognition
+- **Speaker ID** - Knows who's talking, ignores the TV
+
+### 5. Works Offline
+No internet? No problem. ALFRED runs entirely local with Ollama.
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Clone and enter
+# Clone
 git clone https://github.com/Batdan007/ALFRED_II-Y-II.git
 cd ALFRED_II-Y-II
 
-# 2. Install (uses Python 3.11 automatically)
-install.bat                    # Windows
-# or
-py -3.11 -m pip install -r requirements.txt && py -3.11 -m pip install -e .
+# Install (Python 3.11)
+pip install -r requirements.txt
+pip install -e .
 
-# 3. Start Ollama (for local AI)
+# Start Ollama (one-time)
 ollama serve
-ollama pull llama3.2          # Download a model
+ollama pull llama3.2
 
-# 4. Launch ALFRED
-alfred                        # Terminal mode
-alfred --voice                # Voice mode
+# Run ALFRED
+alfred                  # Text mode
+alfred --voice          # Voice mode
+```
+
+**First run**: ALFRED creates a brain at `C:\Drive\data\alfred_brain.db` (Windows) or `~/.alfred/brain.db` (Mac/Linux).
+
+---
+
+## Demo
+
+```
+You: Remember that my project deadline is January 15th
+
+ALFRED: Noted, sir. I've stored that your project deadline is
+January 15th with high importance.
+
+--- Next day, new session ---
+
+You: What's my deadline?
+
+ALFRED: Your project deadline is January 15th, sir.
+```
+
+**Voice Demo:**
+```
+You: "Hey Alfred, what's the weather?"
+
+ALFRED: *speaks in British accent* "Currently 42°F in Gary,
+Indiana, sir. I'd recommend a coat."
 ```
 
 ---
@@ -96,65 +111,36 @@ alfred --voice                # Voice mode
 ## Architecture
 
 ```
-ALFRED_II-Y-II/
-├── Core Brain (core/)
-│   ├── brain.py              # 11-table SQLite memory
-│   ├── privacy_controller.py # Privacy-first cloud access
-│   └── path_manager.py       # Cross-platform paths
-│
-├── AI Layer (ai/)
-│   ├── multimodel.py         # Ollama->Claude->Gemini->Groq->OpenAI
-│   ├── local/                # Ollama integration
-│   └── cloud/                # Claude, Gemini, Groq, OpenAI
-│
-├── Capabilities (capabilities/)
-│   ├── voice/                # British butler TTS + STT
-│   ├── knowledge/            # Stocks, weather, news, cyber intel
-│   ├── rag/                  # ChromaDB + advanced crawling
-│   ├── fabric/               # 243 AI patterns
-│   └── vision/               # Image analysis
-│
-├── MCP Servers (mcp/)        # 5 servers, 46 tools
-│   ├── alfred-brain/
-│   ├── camdan-engineering/
-│   ├── strix-security/
-│   ├── dontlookup-dvbs2/
-│   └── caipe-agents/
-│
-├── Variants (variants/)      # Specialized entry points
-│   ├── alfred_enhanced.py    # Full power mode
-│   ├── alfred_unified.py     # Web UI + FastAPI
-│   ├── alfred_live.py        # Voice-optimized
-│   └── alfred_rag.py         # Research assistant
-│
-├── Tools (tools/)
-│   ├── database_tools.py     # DB migrations, optimization
-│   └── upwork_opportunity_finder.py
-│
-├── User Recognition (user_recognition/)
-│   └── BATDAN_PROFILE.md     # Voice/face profile
-│
-└── Entry Points
-    ├── alfred_terminal.py    # Primary CLI
-    ├── alfred_api_server.py  # REST API
-    └── setup_wizard.py       # GUI setup
+┌─────────────────────────────────────────────────────────────┐
+│                         ALFRED                               │
+├─────────────────────────────────────────────────────────────┤
+│  BRAIN (11 tables)     │  CORTEX (5 layers)                 │
+│  - conversations       │  - Sensory (immediate)             │
+│  - knowledge           │  - Short-term (session)            │
+│  - preferences         │  - Working (active)                │
+│  - patterns            │  - Long-term (persistent)          │
+│  - skills              │  - Archival (compressed)           │
+│  - mistakes            │                                     │
+├─────────────────────────────────────────────────────────────┤
+│  AI CHAIN: Ollama → Claude → Gemini → Groq → OpenAI        │
+├─────────────────────────────────────────────────────────────┤
+│  VOICE: Edge TTS (Ryan) │ VOSK (offline STT) │ Speaker ID  │
+├─────────────────────────────────────────────────────────────┤
+│  SKILLS: security │ engineering │ research │ coding │ ...  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## AI Fallback Chain
+## Core Technologies (Patent-Pending)
 
-```
-1. Ollama (local)     Privacy-first, no internet
-         ↓
-2. Claude (cloud)     High quality, Anthropic
-         ↓
-3. Gemini (cloud)     Google's AI
-         ↓
-4. Groq (cloud)       Fast inference
-         ↓
-5. OpenAI (cloud)     Reliable fallback
-```
+| Technology | What It Does |
+|------------|--------------|
+| **Brain** | 11-table SQLite memory with importance/confidence scoring |
+| **CORTEX** | 5-layer forgetting architecture - memory never overflows |
+| **ULTRATHUNK** | 640:1 generative compression - compress while improving quality |
+| **Guardian** | Behavioral watermarking for IP protection |
+| **NEXUS** | AI-to-AI communication protocol |
 
 ---
 
@@ -162,101 +148,102 @@ ALFRED_II-Y-II/
 
 | Command | Description |
 |---------|-------------|
-| `/help` | Show all commands |
-| `/memory` | View memory stats |
-| `/voice on/off` | Toggle voice output |
-| `/privacy` | Show/change privacy mode |
-| `/cloud` | Request cloud access |
-| `/tools` | Enter tool mode (like Claude Code) |
-| `/scan <path>` | Security scan |
-| `/exit` | Exit ALFRED |
+| `/memory` | View what ALFRED remembers |
+| `/voice` | Toggle voice on/off |
+| `/listen` | Listen for voice command |
+| `/privacy` | Check/change privacy mode |
+| `/learn` | Teach ALFRED something new |
+| `/forget <topic>` | Remove from memory |
+| `/tools` | Enter tool mode |
+| `/exit` | Exit |
+
+**Wake words**: "Hey Alfred", "Alfred", "Batcomputer"
 
 ---
 
-## Variants (from Alfred_Ultimate)
+## Privacy Modes
 
-| Variant | Best For | Launch |
-|---------|----------|--------|
-| **Terminal** | All-around use | `python alfred_terminal.py` |
-| **Enhanced** | Full features | `python variants/alfred_enhanced.py` |
-| **Unified** | Web interface | `python variants/alfred_unified.py` |
-| **Live** | Voice assistant | `python variants/alfred_live.py` |
-| **RAG** | Research | `python variants/alfred_rag.py` |
+| Mode | Behavior |
+|------|----------|
+| **LOCAL** (default) | Ollama only - nothing leaves your machine |
+| **HYBRID** | Local first, cloud with permission |
+| **CLOUD** | Full cloud access enabled |
 
 ---
 
-## MCP Integration (Claude Code)
+## Requirements
 
-Copy `mcp/claude_code_config.json` to your Claude Code config.
-
-**Available Servers:**
-- `alfred-brain` - Memory, knowledge, voice
-- `camdan-engineering` - Building codes, cost estimation
-- `strix-security` - Vulnerability scanning
-- `dontlookup-dvbs2` - Satellite signal analysis
-- `caipe-agents` - Multi-agent orchestration
+- **Python 3.11** (3.10+ works, not 3.13+)
+- **Ollama** for local AI ([ollama.com](https://ollama.com))
+- **8GB RAM** minimum (16GB recommended)
+- **FFmpeg** for voice features
 
 ---
 
-## Configuration
+## Why Not Just Use ChatGPT/Claude?
 
-Create `.env` with your API keys:
-
-```bash
-# Cloud AI (optional if using Ollama only)
-ANTHROPIC_API_KEY=your_key
-OPENAI_API_KEY=your_key
-GROQ_API_KEY=your_key
-GOOGLE_API_KEY=your_key
-
-# Optional services
-POLYGON_API_KEY=your_key      # Stock data
-OPEN_WEATHER_KEY=your_key     # Weather
-NEWSAPI_KEY=your_key          # News
-GITHUB_TOKEN=your_token       # GitHub
-```
+| Feature | ChatGPT/Claude | ALFRED |
+|---------|----------------|--------|
+| Remembers you | Per-session only | Forever |
+| Your data | On their servers | On your disk |
+| Works offline | No | Yes |
+| Voice I/O | Limited | Full (TTS + STT + Speaker ID) |
+| Custom personality | No | Yes (British butler) |
+| Open source | No | Yes |
+| Free | $20+/mo | Free (with Ollama) |
 
 ---
 
-## Patent Status
+## Roadmap
 
-**USPTO Provisional Patent Filed: November 11, 2025**
-
-11-table brain architecture with:
-- Multi-dimensional memory
-- Automatic knowledge extraction
-- Dual scoring (confidence x importance)
-- Pattern learning with success rates
-- Mistake-based learning
-
-**Priority Deadline: November 11, 2026**
+- [x] Persistent 11-table memory
+- [x] Privacy-first architecture
+- [x] Multi-model AI chain
+- [x] Voice (TTS + STT)
+- [x] Speaker recognition
+- [x] Skills system
+- [ ] Web UI dashboard
+- [ ] Mobile app
+- [ ] Multi-user support
+- [ ] Plugin marketplace
 
 ---
 
-## Origin
+## Joe Dog's Rule
 
-This repository merges:
-- **ALFRED_UBX** - Core architecture, MCP servers, privacy controller
-- **Alfred_Ultimate** - 243 patterns, RAG, user recognition, web UI
+ALFRED follows an inviolable ethical core:
+
+> *"ALFRED shall NEVER be used for weapons or violence. Protects all life, guards the environment, guides humanity toward peace."*
+
+> *"No one needs a missile that learns from its mistakes."* - BATDAN
+
+---
+
+## Contributing
+
+Issues and PRs welcome. See [CLAUDE.md](CLAUDE.md) for development guidelines.
+
+---
+
+## License
+
+Proprietary - Patent Pending (USPTO Provisional Filed November 11, 2025)
+
+Core technologies (Brain, CORTEX, ULTRATHUNK, Guardian, NEXUS) are patent-protected.
 
 ---
 
 ## Author
 
 **Daniel J. Rita (BATDAN)**
-- Email: danieljrita@hotmail.com
-- GitHub: [@Batdan007](https://github.com/Batdan007)
-
----
-
-## License
-
-Proprietary - Patent Pending
+GxEum Technologies / CAMDAN Enterprizes
 
 ---
 
 <div align="center">
 
-*ALFRED: Always Learning, Forever Remembering Every Detail*
+**ALFRED** - *Artificial Lifeform For Refined Executive Decisions*
+
+*Your AI butler. Remembers everything. Judges nothing.*
 
 </div>
