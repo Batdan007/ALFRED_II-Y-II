@@ -1,65 +1,49 @@
 # ALFRED II-Y-II Requirements
-# The Ultimate AI Butler - Patent Pending
 # Author: Daniel J. Rita (BATDAN)
 #
-# IMPORTANT: Requires Python 3.11 or 3.12 (NOT 3.13/3.14)
-# Install with: py -3.11 -m pip install -r requirements.txt
+# Python 3.11 or 3.12 ONLY (3.13+ breaks faster-whisper)
+# Install: py -3.11 -m pip install -r requirements.txt
 
-# ===== Core (install first) =====
+# Core
 numpy>=1.24.0
 requests>=2.31.0
 python-dotenv>=1.0.0
 pydantic>=2.9.0
 pydantic-settings>=2.6.0
 
-# ===== CLI & UI =====
+# CLI
 rich>=13.0.0
 prompt-toolkit>=3.0.48
 typer>=0.13.0
 
-# ===== AI Providers =====
+# AI Providers
 anthropic>=0.39.0
 openai>=1.50.0
 groq>=0.11.0
 google-generativeai>=0.8.0
 
-# ===== HTTP Clients =====
+# HTTP
 aiohttp>=3.10.0
 httpx>=0.27.0
 
-# ===== Voice - Speech Recognition (Whisper) =====
+# Voice - Speech Recognition
 faster-whisper>=1.0.0
 sounddevice>=0.4.6
 
-# ===== Voice - Text-to-Speech =====
+# Voice - Text-to-Speech
 edge-tts>=6.1.0
-pygame>=2.5.0  # For interruptible audio playback (Escape key support)
+pygame==2.5.2  # Pinned - newer versions have build issues
 
-# ===== Database =====
+# Database
 aiosqlite>=0.20.0
 
-# ===== Optional: Vision =====
+# Vision
 pillow>=10.0.0
-# opencv-python>=4.8.0  # Large, install separately if needed
 
-# ===== Optional: RAG/Vector DB =====
-# chromadb>=0.5.0  # Heavy, install separately if needed
-# sentence-transformers>=2.2.0  # Heavy, install separately if needed
-
-# ===== Optional: Web Framework =====
-# fastapi>=0.115.0
-# uvicorn[standard]>=0.32.0
-
-# ===== Optional: Web Crawling =====
+# Web Crawling
 beautifulsoup4>=4.12.0
-# lxml>=5.0.0
 
-# ===== Utilities =====
+# Utilities
 python-dateutil>=2.9.0
 tenacity>=9.0.0
 PyYAML>=6.0.2
-
-# ===== Platform Notes =====
-# - Python 3.11 or 3.12 required (faster-whisper needs compiled wheels)
-# - FFmpeg required for voice (winget install ffmpeg)
-# - Ollama required for local AI (https://ollama.com)

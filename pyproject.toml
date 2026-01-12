@@ -11,7 +11,7 @@ license = {text = "Proprietary - Patent Pending"}
 authors = [
     {name = "Daniel J Rita", email = "danieljrita@hotmail.com"}
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.13"
 keywords = ["ai", "assistant", "voice", "butler", "alfred"]
 
 dependencies = [
@@ -25,6 +25,7 @@ voice = [
     "faster-whisper>=1.0.0",
     "edge-tts>=6.1.0",
     "sounddevice>=0.4.6",
+    "pygame==2.5.2",
     "numpy>=1.24.0",
 ]
 full = [

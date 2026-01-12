@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Start
 
 ```bash
-# Install dependencies (Python 3.11 recommended, 3.10+ required)
-pip install -r requirements.txt
+# Install dependencies (Python 3.11 or 3.12 ONLY - 3.13+ breaks faster-whisper)
+py -3.11 -m pip install -r requirements.txt
 
 # Optional: Install as editable package
 pip install -e .
