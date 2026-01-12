@@ -2,8 +2,8 @@
 ALFRED SYSTEMS Platform Server
 Main entry point combining all platform features
 
-Run: python -m platform.server
-Or: uvicorn platform.server:app --reload --port 8000
+Run: python -m maiai_platform.server
+Or: uvicorn maiai_platform.server:app --reload --port 8000
 
 Author: Daniel J Rita (BATDAN)
 """
