@@ -1,0 +1,64 @@
+{
+  "target": {
+    "scope": {
+      "advanced_mode": true,
+      "include": [
+        {
+          "enabled": true,
+          "protocol": "https",
+          "host": "^.*\\.amazon\\.com$"
+        },
+        {
+          "enabled": true,
+          "protocol": "https",
+          "host": "^amazon\\.com$"
+        },
+        {
+          "enabled": true,
+          "protocol": "https",
+          "host": "^.*\\.ssl-images-amazon\\.com$"
+        }
+      ],
+      "exclude": [
+        {
+          "enabled": true,
+          "protocol": "any",
+          "host": "^.*\\.aws\\.amazon\\.com$"
+        },
+        {
+          "enabled": true,
+          "protocol": "any",
+          "host": "^.*\\.cloudfront\\.net$"
+        },
+        {
+          "enabled": true,
+          "protocol": "any",
+          "host": "^.*\\.a2z\\.com$"
+        }
+      ]
+    }
+  },
+  "proxy": {
+    "match_replace_rules": [
+      {
+        "enabled": true,
+        "rule_type": "request_header",
+        "string_match": "^User-Agent:.*$",
+        "string_replace": "User-Agent: amazonvrpresearcher_BATDAN",
+        "comment": "VRP compliant User-Agent"
+      }
+    ],
+    "intercept_client_requests": {
+      "do_intercept": false,
+      "rules": [
+        {
+          "enabled": true,
+          "boolean_operator": "and",
+          "match_type": "domain_name",
+          "relationship": "matches",
+          "condition": "amazon\\.com$"
+        }
+      ]
+    }
+  }
+}

@@ -67,6 +67,17 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(billing_router, prefix="/api")
 app.include_router(maiai_router, prefix="/api")
 
+
+@app.on_event("startup")
+async def startup_event():
+    """Log startup info for debugging"""
+    import os
+    logger.info("=" * 50)
+    logger.info("ALFRED SYSTEMS Platform Starting...")
+    logger.info(f"PORT: {os.getenv('PORT', 'not set')}")
+    logger.info(f"Working dir: {os.getcwd()}")
+    logger.info("=" * 50)
+
 # Static files
 STATIC_DIR = Path(__file__).parent / "static"
 WEB_DIR = Path(__file__).parent.parent / "web" / "static"
