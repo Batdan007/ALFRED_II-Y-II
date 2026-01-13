@@ -391,28 +391,180 @@ class Installer:
             self.info("  Model will download on first use")
             return True
 
-    def check_ollama(self) -> bool:
-        """Check Ollama connection."""
-        self.info("Checking Ollama (local AI)...")
+    def install_ollama(self) -> bool:
+        """Install Ollama if not present."""
+        self.info("Checking Ollama installation...")
+
+        # Check if ollama command exists
+        if shutil.which("ollama"):
+            self.success("Ollama already installed")
+            return True
+
+        self.info("Installing Ollama...")
+
+        if self.os_type == "windows":
+            # Windows: use winget
+            try:
+                result = subprocess.run(
+                    ["winget", "install", "-e", "--id", "Ollama.Ollama", "-h", "--accept-source-agreements"],
+                    capture_output=True, text=True, timeout=300
+                )
+                if result.returncode == 0:
+                    self.success("Ollama installed via winget")
+                    self.info("  Restart your terminal for PATH to update")
+                    return True
+                else:
+                    # Try direct download
+                    self.info("Trying direct download...")
+                    subprocess.run(
+                        ["powershell", "-Command",
+                         "Invoke-WebRequest -Uri 'https://ollama.com/download/OllamaSetup.exe' -OutFile 'OllamaSetup.exe'; Start-Process -Wait -FilePath '.\\OllamaSetup.exe' -ArgumentList '/S'"],
+                        timeout=300
+                    )
+                    self.success("Ollama installed")
+                    return True
+            except Exception as e:
+                self.warn(f"Ollama install failed: {e}")
+                self.info("  Download manually: https://ollama.com/download")
+                return False
+
+        elif self.os_type in ("linux", "wsl"):
+            # Linux/WSL: use the install script
+            try:
+                subprocess.run(
+                    ["bash", "-c", "curl -fsSL https://ollama.com/install.sh | sh"],
+                    check=True, timeout=300
+                )
+                self.success("Ollama installed")
+                return True
+            except Exception as e:
+                self.warn(f"Ollama install failed: {e}")
+                self.info("  Install manually: curl -fsSL https://ollama.com/install.sh | sh")
+                return False
+
+        elif self.os_type == "macos":
+            # macOS: try brew first
+            try:
+                subprocess.run(["brew", "install", "ollama"], check=True, timeout=300)
+                self.success("Ollama installed via Homebrew")
+                return True
+            except Exception:
+                self.info("  Download from: https://ollama.com/download")
+                return False
+
+        return False
+
+    def start_ollama(self) -> bool:
+        """Start Ollama service if not running."""
+        self.info("Checking if Ollama is running...")
 
         try:
-            import requests  # type: ignore
+            import requests
             r = requests.get("http://localhost:11434/api/tags", timeout=3)
             if r.status_code == 200:
-                models = r.json().get('models', [])
-                if models:
-                    names = [m['name'].split(':')[0] for m in models[:3]]
-                    self.success(f"Ollama running: {', '.join(names)}")
-                else:
-                    self.success("Ollama running (no models)")
-                    self.info("  Pull a model: ollama pull llama3.2")
+                self.success("Ollama is running")
                 return True
         except Exception:
             pass
 
-        self.warn("Ollama not running")
-        self.info("  Start with: ollama serve")
-        self.info("  Download: https://ollama.com")
+        self.info("Starting Ollama...")
+
+        try:
+            if self.os_type == "windows":
+                # Windows: start in background
+                subprocess.Popen(
+                    ["ollama", "serve"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW if hasattr(subprocess, 'CREATE_NO_WINDOW') else 0
+                )
+            else:
+                # Unix: start in background
+                subprocess.Popen(
+                    ["ollama", "serve"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+
+            # Wait for it to start
+            import time
+            for _ in range(10):
+                time.sleep(1)
+                try:
+                    import requests
+                    r = requests.get("http://localhost:11434/api/tags", timeout=2)
+                    if r.status_code == 200:
+                        self.success("Ollama started")
+                        return True
+                except Exception:
+                    continue
+
+            self.warn("Ollama may not have started - check manually")
+            return False
+
+        except Exception as e:
+            self.warn(f"Could not start Ollama: {e}")
+            return False
+
+    def pull_ollama_model(self) -> bool:
+        """Pull a default Ollama model."""
+        if self.minimal or self.quick:
+            return True
+
+        self.info("Checking for Ollama models...")
+
+        try:
+            import requests
+            r = requests.get("http://localhost:11434/api/tags", timeout=3)
+            if r.status_code == 200:
+                models = r.json().get('models', [])
+                if models:
+                    names = [m['name'] for m in models[:3]]
+                    self.success(f"Models available: {', '.join(names)}")
+                    return True
+        except Exception:
+            self.warn("Ollama not responding - skipping model pull")
+            return False
+
+        # No models - pull one
+        default_model = "llama3.2"  # Good balance of size and capability
+        self.info(f"Pulling {default_model} model (~2GB)...")
+        self.info("  This may take a few minutes...")
+
+        try:
+            result = subprocess.run(
+                ["ollama", "pull", default_model],
+                timeout=600,  # 10 minutes
+                capture_output=False  # Show progress
+            )
+            if result.returncode == 0:
+                self.success(f"{default_model} model ready")
+                return True
+            else:
+                self.warn("Model pull failed - you can pull later with: ollama pull llama3.2")
+                return False
+        except subprocess.TimeoutExpired:
+            self.warn("Model pull timed out - continue with: ollama pull llama3.2")
+            return False
+        except FileNotFoundError:
+            self.warn("Ollama command not found - restart terminal after install")
+            return False
+        except Exception as e:
+            self.warn(f"Model pull error: {e}")
+            return False
+
+    def check_ollama(self) -> bool:
+        """Check Ollama connection (legacy - now calls install/start/pull)."""
+        # Install if needed
+        self.install_ollama()
+
+        # Start if not running
+        self.start_ollama()
+
+        # Pull model if none
+        self.pull_ollama_model()
+
         return True
 
     def install_package(self) -> bool:
@@ -480,7 +632,7 @@ PORT=8000
     def create_launcher(self):
         """Create platform-specific launcher scripts."""
         self.info("Creating launcher scripts...")
-        
+
         if self.os_type == "windows":
             # Windows batch file
             batch_content = """@echo off
@@ -488,12 +640,12 @@ cd /d "%~dp0"
 if exist "venv\\Scripts\\activate.bat" (
     call venv\\Scripts\\activate.bat
 )
-python main.py %*
+python alfred_terminal.py %*
 """
             with open("alfred.bat", "w") as f:
                 f.write(batch_content)
             self.success("Created alfred.bat")
-            
+
             # PowerShell script
             ps_content = """$ErrorActionPreference = "Stop"
 Push-Location $PSScriptRoot
@@ -501,7 +653,7 @@ try {
     if (Test-Path "venv\\Scripts\\Activate.ps1") {
         . .\\venv\\Scripts\\Activate.ps1
     }
-    python main.py @args
+    python alfred_terminal.py @args
 } finally {
     Pop-Location
 }
@@ -509,7 +661,7 @@ try {
             with open("alfred.ps1", "w") as f:
                 f.write(ps_content)
             self.success("Created alfred.ps1")
-        
+
         elif self.os_type in ("linux", "macos", "wsl"):
             # Unix shell script
             bash_content = """#!/usr/bin/env bash
@@ -520,7 +672,7 @@ if [[ -f "venv/bin/activate" ]]; then
     source venv/bin/activate
 fi
 
-python main.py "$@"
+python alfred_terminal.py "$@"
 """
             launcher_path = Path("alfred")
             with open(launcher_path, "w") as f:
@@ -551,9 +703,9 @@ python main.py "$@"
 {Colors.YELLOW}   .\\venv\\Scripts\\Activate.ps1{Colors.NC}
 
 {Colors.WHITE}3. Run ALFRED:{Colors.NC}
-{Colors.YELLOW}   python main.py{Colors.NC}
-{Colors.GRAY}   # Or use the launcher:{Colors.NC}
-{Colors.YELLOW}   .\\alfred.bat{Colors.NC}
+{Colors.YELLOW}   alfred{Colors.NC}
+{Colors.GRAY}   # Or with voice:{Colors.NC}
+{Colors.YELLOW}   alfred --voice{Colors.NC}
 """)
         else:
             print(f"""
@@ -565,9 +717,9 @@ python main.py "$@"
 {Colors.YELLOW}   source venv/bin/activate{Colors.NC}
 
 {Colors.WHITE}3. Run ALFRED:{Colors.NC}
-{Colors.YELLOW}   python main.py{Colors.NC}
-{Colors.GRAY}   # Or use the launcher:{Colors.NC}
-{Colors.YELLOW}   ./alfred{Colors.NC}
+{Colors.YELLOW}   alfred{Colors.NC}
+{Colors.GRAY}   # Or with voice:{Colors.NC}
+{Colors.YELLOW}   alfred --voice{Colors.NC}
 """)
         
         print(f"{Colors.GRAY}Documentation: https://github.com/Batdan007/ALFRED_UBX{Colors.NC}")
