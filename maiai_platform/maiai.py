@@ -294,15 +294,11 @@ Remember: You are {agent['agent_name']}, a unique AI with your own personality a
 Be consistent with your character while being helpful to the user."""
 
     try:
-        # Import AI orchestrator
-        from ai.multimodel import MultiModelOrchestrator
-        from core.privacy_controller import PrivacyController
+        # Try lightweight cloud client first (for Railway deployment)
+        from .ai_client import get_cloud_ai
+        ai = get_cloud_ai()
 
-        # Create orchestrator with privacy (local-first)
-        privacy = PrivacyController(auto_confirm=True)
-        ai = MultiModelOrchestrator(privacy_controller=privacy)
-
-        # Build context
+        # Build context with system prompt
         context = request.context or []
         context.insert(0, {"role": "system", "content": full_system})
 
@@ -310,7 +306,8 @@ Be consistent with your character while being helpful to the user."""
         response = ai.generate(
             prompt=request.message,
             context=context,
-            temperature=0.8,  # Slightly more creative for personality
+            system=full_system,
+            temperature=0.8,
             max_tokens=500
         )
 
@@ -327,9 +324,6 @@ Be consistent with your character while being helpful to the user."""
             "response": response
         }
 
-    except ImportError as e:
-        logger.error(f"Import error: {e}")
-        raise HTTPException(status_code=500, detail="AI system not available")
     except Exception as e:
         logger.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
