@@ -7,9 +7,15 @@ ENV/
 # Environment files (API keys, secrets)
 .env
 .env.*
-.env\ (II-Y-II)
+.env*
 **/.env
 **/.env.*
+
+# Sensitive files - NEVER commit these
+*BACKUP*CODES*
+*HACKERONE*
+*credentials*
+*secrets*.json
 
 # Node modules
 node_modules/
