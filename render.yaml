@@ -10,6 +10,8 @@ services:
     buildCommand: pip install -r requirements-railway.txt
     startCommand: uvicorn maiai_platform.server:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
+    runtime: python
+    pythonVersion: "3.11.6"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.6
