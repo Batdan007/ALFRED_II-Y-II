@@ -36,6 +36,11 @@ dist/
 build/
 *.egg-info/
 
+# Next.js
+web/.next/
+web/out/
+web/.vercel/
+
 # Logs
 *.log
 
@@ -54,12 +59,13 @@ build/
 *.mp3
 *.wav
 
-# Image files (except documentation)
+# Image files (except documentation and PWA)
 *.jpg
 *.jpeg
 *.png
 !docs/*.png
 !docs/*.jpg
+!web/public/*.png
 
 # Temporary files
 nul

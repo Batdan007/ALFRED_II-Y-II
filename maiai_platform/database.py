@@ -143,7 +143,8 @@ class UserDB:
     """User database operations"""
 
     @staticmethod
-    def create_user(email: str, password: str, name: Optional[str] = None) -> Optional[int]:
+    def create_user(email: str, password: str, name: Optional[str] = None,
+                    beta_access: bool = False) -> Optional[int]:
         """Create new user, return user ID"""
         conn = get_db()
         cursor = conn.cursor()
@@ -151,9 +152,9 @@ class UserDB:
             password_hash = hash_password(password)
             verification_token = generate_token()
             cursor.execute("""
-                INSERT INTO users (email, password_hash, name, verification_token)
-                VALUES (?, ?, ?, ?)
-            """, (email.lower(), password_hash, name, verification_token))
+                INSERT INTO users (email, password_hash, name, verification_token, beta_access)
+                VALUES (?, ?, ?, ?, ?)
+            """, (email.lower(), password_hash, name, verification_token, beta_access))
             conn.commit()
             return cursor.lastrowid
         except sqlite3.IntegrityError:
@@ -376,6 +377,16 @@ class BetaDB:
         """, (datetime.now(), email.lower()))
         conn.commit()
         conn.close()
+
+    @staticmethod
+    def is_beta_user(email: str) -> bool:
+        """Check if email is on beta list"""
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM beta_signups WHERE email = ?", (email.lower(),))
+        result = cursor.fetchone() is not None
+        conn.close()
+        return result
 
 
 # Initialize database on import

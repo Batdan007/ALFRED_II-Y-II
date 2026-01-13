@@ -12,6 +12,13 @@ import re
 
 from .database import UserDB, BetaDB, generate_token
 
+# Email service (optional)
+try:
+    from .email_service import send_beta_welcome, send_signup_welcome
+    EMAIL_AVAILABLE = True
+except ImportError:
+    EMAIL_AVAILABLE = False
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
@@ -88,22 +95,35 @@ async def signup(request: SignupRequest, req: Request):
     """
     Create new account
 
-    Returns token and user info on success
+    Returns token and user info on success.
+    Beta users automatically get Pro tier.
     """
     # Validate password
     valid, message = validate_password(request.password)
     if not valid:
         raise HTTPException(status_code=400, detail=message)
 
-    # Create user
+    # Check if this email is on the beta list
+    is_beta = BetaDB.is_beta_user(request.email)
+
+    # Create user (with beta_access flag if on list)
     user_id = UserDB.create_user(
         email=request.email,
         password=request.password,
-        name=request.name
+        name=request.name,
+        beta_access=is_beta
     )
 
     if not user_id:
         raise HTTPException(status_code=400, detail="Email already registered")
+
+    # If beta user, upgrade to Pro tier
+    if is_beta:
+        UserDB.update_subscription(
+            user_id=user_id,
+            tier="pro",
+            status="active"
+        )
 
     # Create session
     token = UserDB.create_session(
@@ -114,6 +134,13 @@ async def signup(request: SignupRequest, req: Request):
 
     # Get user data
     user = UserDB.get_user_by_id(user_id)
+
+    # Send welcome email (async, non-blocking)
+    if EMAIL_AVAILABLE:
+        try:
+            send_signup_welcome(request.email, request.name)
+        except Exception:
+            pass  # Don't fail signup if email fails
 
     return {
         "token": token,
@@ -205,7 +232,8 @@ async def beta_signup(request: BetaSignupRequest):
     """
     Join the beta waitlist
 
-    No account required - just email
+    No account required - just email.
+    Sends welcome email with Pro access info.
     """
     success = BetaDB.add_signup(
         email=request.email,
@@ -217,7 +245,14 @@ async def beta_signup(request: BetaSignupRequest):
         # Already signed up is still a success from user perspective
         return {"message": "You're on the list! We'll notify you when beta access is available."}
 
-    return {"message": "Thanks for signing up! You'll be notified when beta access is available."}
+    # Send beta welcome email
+    if EMAIL_AVAILABLE:
+        try:
+            send_beta_welcome(request.email, request.name)
+        except Exception:
+            pass  # Don't fail if email fails
+
+    return {"message": "You're in! Check your email for next steps. Pro features are yours free during beta."}
 
 
 @router.get("/beta-signups")

@@ -40,6 +40,11 @@ aiosqlite>=0.20.0
 # Vision
 pillow>=10.0.0
 
+# Web Framework (Required for Platform)
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.9
+
 # Web Crawling
 beautifulsoup4>=4.12.0
 
@@ -47,3 +52,7 @@ beautifulsoup4>=4.12.0
 python-dateutil>=2.9.0
 tenacity>=9.0.0
 PyYAML>=6.0.2
+
+# Platform/SaaS
+stripe>=7.0.0
+resend>=2.0.0
