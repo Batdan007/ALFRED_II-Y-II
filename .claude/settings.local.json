@@ -52,7 +52,9 @@
       "Bash(ren:*)",
       "Bash(git checkout:*)",
       "Bash(timeout 5 python:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(curl:*)",
+      "Bash(git ls-tree:*)"
     ]
   }
 }
