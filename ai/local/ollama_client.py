@@ -32,13 +32,11 @@ class OllamaClient:
     Connects to local Ollama instance (http://localhost:11434)
     """
 
-    DEFAULT_MODEL = "ALFRED_II-Y-II"  # Custom ALFRED model with personality baked in
-    FALLBACK_MODELS = [
-        "nous-hermes2:10.7b-solar-q5_K_M",  # High quality, concise
-        "llama3.2:latest",         # Fast, direct
-        "dolphin-llama3:8b",       # Uncensored fallback
-        "llama3.1:8b",            # Fast and capable
-        "llama3:latest",          # Standard fallback
+    DEFAULT_MODEL = "llama3.2"  # Most common Ollama model
+    # Fallback models in order of preference (base names without tags)
+    FALLBACK_PREFERENCES = [
+        "llama3.2", "llama3", "mistral", "mixtral", "phi3", "gemma",
+        "dolphin", "nous-hermes", "codellama", "deepseek", "qwen",
     ]
 
     def __init__(self, base_url: str = "http://localhost:11434", model: Optional[str] = None):
@@ -47,11 +45,11 @@ class OllamaClient:
 
         Args:
             base_url: Ollama server URL (default: localhost:11434)
-            model: Model name (default: dolphin-llama3:8b)
+            model: Model name (default: auto-detected)
         """
         self.logger = logging.getLogger(__name__)
         self.base_url = base_url.rstrip('/')
-        self.model = model or self.DEFAULT_MODEL
+        self.model = model  # Will be auto-detected if None
         self.available = False
 
         self._check_availability()
@@ -65,15 +63,27 @@ class OllamaClient:
                 models = response.json().get('models', [])
                 model_names = [m['name'] for m in models]
 
-                if self.model in model_names:
-                    self.logger.info(f"Ollama available with {self.model}")
-                else:
-                    self.logger.warning(f"{self.model} not found. Available: {', '.join(model_names)}")
-                    for fallback in self.FALLBACK_MODELS:
-                        if fallback in model_names:
-                            self.model = fallback
-                            self.logger.info(f"Using fallback model: {fallback}")
+                # If no model specified, auto-detect best available
+                if not self.model:
+                    self.model = self._find_best_model(model_names)
+
+                # Check if requested model exists (exact or partial match)
+                if self.model and any(self.model in m or m.startswith(self.model) for m in model_names):
+                    # Find exact match for the model name
+                    for m in model_names:
+                        if self.model in m or m.startswith(self.model):
+                            self.model = m
                             break
+                    self.logger.info(f"Ollama available with {self.model}")
+                elif model_names:
+                    # Fallback to best available model
+                    self.logger.warning(f"{self.model} not found. Available: {', '.join(model_names)}")
+                    self.model = self._find_best_model(model_names)
+                    if self.model:
+                        self.logger.info(f"Using available model: {self.model}")
+                    else:
+                        self.model = model_names[0]  # Last resort: first available
+                        self.logger.info(f"Using first available model: {self.model}")
 
                 return True
             else:
@@ -88,6 +98,22 @@ class OllamaClient:
     def is_available(self) -> bool:
         """Check if Ollama is currently available"""
         return self.available
+
+    def _find_best_model(self, available_models: List[str]) -> Optional[str]:
+        """Find the best model from available models based on preferences"""
+        if not available_models:
+            return None
+
+        # Check each preference in order
+        for pref in self.FALLBACK_PREFERENCES:
+            for model in available_models:
+                # Match base name (model names can be like 'mistral:latest' or 'mistral:7b')
+                model_base = model.split(':')[0].lower()
+                if pref.lower() in model_base or model_base.startswith(pref.lower()):
+                    return model
+
+        # No preferred model found, return first available
+        return available_models[0] if available_models else None
 
     def generate(self, prompt: str, context: Optional[List[Dict]] = None,
                  temperature: float = 0.3, max_tokens: int = 300,

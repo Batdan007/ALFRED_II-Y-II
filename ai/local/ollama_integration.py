@@ -21,27 +21,45 @@ class OllamaAI:
 
     def __init__(
         self,
-        primary_model: str = "dolphin-mixtral:8x7b",
-        backup_model: str = "llama3.3:70b",
-        fast_model: str = "dolphin-llama3:8b",
+        primary_model: Optional[str] = None,
+        backup_model: Optional[str] = None,
+        fast_model: Optional[str] = None,
         api_base: str = "http://localhost:11434"
     ):
         """
         Initialize Ollama AI client
 
         Args:
-            primary_model: Main unrestricted model (dolphin-mixtral:8x7b)
-            backup_model: Backup model (llama3.3:70b)
-            fast_model: Fast model for quick responses (dolphin-llama3:8b)
+            primary_model: Main model (auto-detected if None)
+            backup_model: Backup model (auto-detected if None)
+            fast_model: Fast model for quick responses (auto-detected if None)
             api_base: Ollama API endpoint
         """
-        self.primary_model = primary_model
-        self.backup_model = backup_model
-        self.fast_model = fast_model
         self.api_base = api_base
 
-        # Check if Ollama is running
+        # Check if Ollama is running and auto-detect models
         self.is_available = self.check_connection()
+
+        # Auto-detect models from available ones
+        available = [m['name'] for m in self.list_models()] if self.is_available else []
+        self.primary_model = primary_model or self._find_model(available)
+        self.backup_model = backup_model or self._find_model(available, exclude=self.primary_model)
+        self.fast_model = fast_model or self.primary_model  # Same as primary if not specified
+
+    def _find_model(self, available: List[str], exclude: Optional[str] = None) -> Optional[str]:
+        """Find best available model from preferences"""
+        preferences = ["mistral", "mixtral", "llama", "phi", "gemma", "dolphin", "qwen"]
+        for pref in preferences:
+            for model in available:
+                if exclude and model == exclude:
+                    continue
+                if pref in model.lower():
+                    return model
+        # Return first available that's not excluded
+        for model in available:
+            if model != exclude:
+                return model
+        return available[0] if available else None
 
     def check_connection(self) -> bool:
         """Check if Ollama is running and accessible"""

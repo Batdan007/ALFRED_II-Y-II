@@ -4,7 +4,7 @@ try {
     if (Test-Path "venv\Scripts\Activate.ps1") {
         . .\venv\Scripts\Activate.ps1
     }
-    python main.py @args
+    python alfred_terminal.py @args
 } finally {
     Pop-Location
 }
