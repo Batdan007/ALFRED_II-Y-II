@@ -20,13 +20,13 @@ unsigned char received_data,count = 0,inc = 0;
 char received_string[100];
 void LCD_cmnd(unsigned char cmnd)
 {
-	LCD_DATAPORT=cmnd;
-	LCD_CMNDPORT &= ~(1<<LCD_RS);
-	LCD_CMNDPORT &= ~(1<<LCD_RW);
-	LCD_CMNDPORT |= (1<<LCD_EN);
-	_delay_us(5);
-	LCD_CMNDPORT &= ~(1<<LCD_EN);
-	_delay_us(200);
+  PORTB = cmnd;
+  PORTC &= ~(1 << LCD_RS);
+  LCD_CMNDPORT &= ~(1 << LCD_RW);
+  LCD_CMNDPORT |= (1 << LCD_EN);
+  _delay_us(5);
+  LCD_CMNDPORT &= ~(1 << LCD_EN);
+  _delay_us(200);
 }
 void LCD_data(unsigned char data)
 {

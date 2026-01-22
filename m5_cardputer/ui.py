@@ -134,17 +134,19 @@ class AlfredUI:
             # M5 Cardputer display pins
             spi = SPI(1, baudrate=40000000, sck=Pin(36), mosi=Pin(35))
 
+            # The ST7789 driver uses physical dimensions then rotation
+            # M5 Cardputer is physically 135x240, used in landscape (rotation 1)
             self.display = st7789.ST7789(
                 spi,
-                self.WIDTH,
-                self.HEIGHT,
+                135,
+                240,
                 reset=Pin(34, Pin.OUT),
                 cs=Pin(37, Pin.OUT),
                 dc=Pin(38, Pin.OUT),
+                backlight=Pin(33, Pin.OUT),
                 rotation=1
             )
 
-            self.display.init()
             self.clear()
             print("[OK] Display initialized")
 

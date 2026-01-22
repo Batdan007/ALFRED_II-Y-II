@@ -182,7 +182,8 @@ def upload_alfred_edge(port):
         "main.py",
         "local_brain.py",
         "sync_client.py",
-        "ui.py"
+        "ui.py",
+        "gsm_handler.py"
     ]
 
     script_dir = Path(__file__).parent

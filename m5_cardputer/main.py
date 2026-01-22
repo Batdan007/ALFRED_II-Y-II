@@ -24,16 +24,22 @@ from machine import Pin, SPI, I2S, Timer
 # M5 Cardputer specific imports
 try:
     import st7789
-    from m5stack import Cardputer
-    M5_AVAILABLE = True
+    M5_LCD_AVAILABLE = True
 except ImportError:
-    M5_AVAILABLE = False
-    print("[WARN] M5Stack libraries not found - running in simulation mode")
+    M5_LCD_AVAILABLE = False
+
+try:
+    from m5stack import Cardputer
+    M5_STACK_AVAILABLE = True
+except ImportError:
+    M5_STACK_AVAILABLE = False
+    print("[WARN] M5Stack libraries not found")
 
 # Local modules
 from local_brain import LocalBrain
 from sync_client import SyncClient
 from ui import AlfredUI
+from gsm_handler import GSMHandler
 
 # Configuration
 CONFIG = {
@@ -72,6 +78,7 @@ class AlfredEdge:
         self.brain = LocalBrain()
         self.ui = AlfredUI()
         self.sync = SyncClient(CONFIG["sync_server"])
+        self.gsm = GSMHandler()
 
         # State
         self.running = True
@@ -110,13 +117,14 @@ class AlfredEdge:
 
     def _init_hardware(self):
         """Initialize M5 Cardputer hardware."""
-        if not M5_AVAILABLE:
+        if not M5_LCD_AVAILABLE and not M5_STACK_AVAILABLE:
             print("[WARN] Hardware simulation mode")
             return
 
         try:
-            # Initialize display
-            self.ui.init_display()
+            # Initialize display if available
+            if M5_LCD_AVAILABLE or self.ui.M5_DISPLAY_AVAILABLE:
+                self.ui.init_display()
 
             # Initialize keyboard
             self.ui.init_keyboard()
@@ -430,6 +438,7 @@ class AlfredEdge:
             "5. View Pending",
             "6. Sync Now",
             "7. Settings",
+            "8. GSM Receiver",
             "0. Exit"
         ]
 
@@ -452,6 +461,8 @@ class AlfredEdge:
             self.sync_to_server()
         elif key == '7':
             self._settings_menu()
+        elif key == '8':
+            self.gsm.listen_and_process(self.ui)
         elif key == '0':
             self.running = False
         elif key == 'ESC':
