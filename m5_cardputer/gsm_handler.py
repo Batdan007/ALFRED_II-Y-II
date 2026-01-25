@@ -45,6 +45,12 @@ class GSMHandler:
         self.count = 0
         
         while self.count < 99:
+            # Check if user wants to cancel
+            key = ui.check_key()
+            if key in ['ESC', '0']:
+                print("[INFO] GSM listening cancelled by user")
+                return
+
             if self.uart.any():
                 data = self.uart.read(1)
                 if data:

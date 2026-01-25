@@ -77,47 +77,35 @@ class AlfredUI:
         self._last_key = None
         self._key_held = False
 
-        # Keyboard matrix pins (M5 Cardputer specific)
-        self.row_pins = [1, 2, 3, 4, 5, 6, 7]
-        self.col_pins = [8, 9, 10, 11, 12, 13, 14, 15]
+        # Keyboard matrix pins (M5 Cardputer uses 74HC138 decoder for rows)
+        self.row_addr_pins = [8, 9, 11]  # A0, A1, A2
+        self.col_pins = [13, 15, 3, 4, 5, 6, 7] # C0, C1, C2, C3, C4, C5, C6
 
-        # Key mapping for M5 Cardputer
+        # Key mapping for M5 Cardputer 8x7 matrix
         self.keymap = self._build_keymap()
 
         print("[INFO] UI initialized")
 
     def _build_keymap(self):
-        """Build keyboard matrix keymap."""
-        # M5 Cardputer keyboard layout (simplified)
-        # Actual layout may vary - adjust based on hardware
+        """Build keyboard matrix keymap for 8x7 decoder matrix."""
+        # Based on M5 Cardputer physical layout and 74HC138 scan rows
         return {
-            # Row 0: Function keys + numbers
-            (0, 0): 'ESC', (0, 1): '1', (0, 2): '2', (0, 3): '3',
-            (0, 4): '4', (0, 5): '5', (0, 6): '6', (0, 7): '7',
-
-            # Row 1: More numbers + special
-            (1, 0): '8', (1, 1): '9', (1, 2): '0', (1, 3): '-',
-            (1, 4): '=', (1, 5): 'BKSP', (1, 6): 'TAB', (1, 7): 'q',
-
-            # Row 2: QWERTY row
-            (2, 0): 'w', (2, 1): 'e', (2, 2): 'r', (2, 3): 't',
-            (2, 4): 'y', (2, 5): 'u', (2, 6): 'i', (2, 7): 'o',
-
-            # Row 3: More letters
-            (3, 0): 'p', (3, 1): '[', (3, 2): ']', (3, 3): 'a',
-            (3, 4): 's', (3, 5): 'd', (3, 6): 'f', (3, 7): 'g',
-
-            # Row 4: ASDF row
-            (4, 0): 'h', (4, 1): 'j', (4, 2): 'k', (4, 3): 'l',
-            (4, 4): ';', (4, 5): "'", (4, 6): 'ENTER', (4, 7): 'SHIFT',
-
-            # Row 5: ZXCV row
-            (5, 0): 'z', (5, 1): 'x', (5, 2): 'c', (5, 3): 'v',
-            (5, 4): 'b', (5, 5): 'n', (5, 6): 'm', (5, 7): ',',
-
-            # Row 6: Bottom row
-            (6, 0): '.', (6, 1): '/', (6, 2): 'CTRL', (6, 3): 'ALT',
-            (6, 4): ' ', (6, 5): 'FN', (6, 6): 'UP', (6, 7): 'DOWN',
+            # Scan Row 0 (Odd Col physical row 3)
+            (0, 0): 'Ctrl', (0, 1): 'Opt', (0, 2): 'Alt', (0, 3): 'z', (0, 4): 'x', (0, 5): 'c', (0, 6): 'v',
+            # Scan Row 1 (Odd Col physical row 2)
+            (1, 0): 'SHIFT', (1, 1): 'a', (1, 2): 's', (1, 3): 'd', (1, 4): 'f', (1, 5): 'g', (1, 6): 'h',
+            # Scan Row 2 (Odd Col physical row 1)
+            (2, 0): 'q', (2, 1): 'w', (2, 2): 'e', (2, 3): 'r', (2, 4): 't', (2, 5): 'y', (2, 6): 'u',
+            # Scan Row 3 (Odd Col physical row 0)
+            (3, 0): '1', (3, 1): '3', (3, 2): '5', (3, 3): '7', (3, 4): '9', (3, 5): '-', (3, 6): 'BS',
+            # Scan Row 4 (Even Col physical row 3)
+            (4, 0): 'b', (4, 1): 'n', (4, 2): 'm', (4, 3): ',', (4, 4): '.', (4, 5): '/', (4, 6): ' ',
+            # Scan Row 5 (Even Col physical row 2)
+            (5, 0): 'j', (5, 1): 'k', (5, 2): 'l', (5, 3): ';', (5, 4): "'", (5, 5): 'ENTER', (5, 6): 'FN',
+            # Scan Row 6 (Even Col physical row 1)
+            (6, 0): 'i', (6, 1): 'o', (6, 2): 'p', (6, 3): '[', (6, 4): ']', (6, 5): '\\', (6, 6): 'TAB',
+            # Scan Row 7 (Even Col physical row 0)
+            (7, 0): '`', (7, 1): '2', (7, 2): '4', (7, 3): '6', (7, 4): '8', (7, 5): '0', (7, 6): '=',
         }
 
     # ========================================
@@ -131,22 +119,33 @@ class AlfredUI:
             return
 
         try:
-            # M5 Cardputer display pins
-            spi = SPI(1, baudrate=40000000, sck=Pin(36), mosi=Pin(35))
+            # Verified M5 Cardputer display pins
+            spi = SPI(1, baudrate=20000000, polarity=1, phase=1, sck=Pin(36), mosi=Pin(35))
 
-            # The ST7789 driver uses physical dimensions then rotation
-            # M5 Cardputer is physically 135x240, used in landscape (rotation 1)
+            # Hardware Reset
+            rst_pin = Pin(33, Pin.OUT)
+            rst_pin.value(0)
+            time.sleep(0.1)
+            rst_pin.value(1)
+            time.sleep(0.1)
+
+            # Backlight control
+            self.backlight = Pin(38, Pin.OUT)
+            self.backlight.value(1)
+
+            # The ST7789 driver initialization
             self.display = st7789.ST7789(
                 spi,
                 135,
                 240,
-                reset=Pin(34, Pin.OUT),
+                reset=Pin(33, Pin.OUT),
                 cs=Pin(37, Pin.OUT),
-                dc=Pin(38, Pin.OUT),
-                backlight=Pin(33, Pin.OUT),
+                dc=Pin(34, Pin.OUT),
                 rotation=1
             )
 
+            self.display.init(self.display.init_cmds)
+            self.display.inversion_mode(True)
             self.clear()
             print("[OK] Display initialized")
 
@@ -155,14 +154,10 @@ class AlfredUI:
             self.display = None
 
     def init_keyboard(self):
-        """Initialize keyboard matrix."""
-        if not M5_KEYBOARD_AVAILABLE:
-            print("[WARN] Keyboard not available")
-            return
-
+        """Initialize keyboard matrix scanning."""
         try:
-            # Setup row pins as outputs
-            self.rows = [Pin(p, Pin.OUT, value=1) for p in self.row_pins]
+            # Setup row address pins as outputs
+            self.rows_addr = [Pin(p, Pin.OUT, value=1) for p in self.row_addr_pins]
 
             # Setup column pins as inputs with pull-up
             self.cols = [Pin(p, Pin.IN, Pin.PULL_UP) for p in self.col_pins]
@@ -171,7 +166,7 @@ class AlfredUI:
 
         except Exception as e:
             print(f"[ERROR] Keyboard init failed: {e}")
-            self.rows = None
+            self.rows_addr = None
             self.cols = None
 
     # ========================================
@@ -230,10 +225,10 @@ class AlfredUI:
         self._draw_header(title, "ALFRED")
 
         # Draw menu items
-        y = self.HEADER_HEIGHT + 4
-        for i, item in enumerate(items[:7]):  # Max 7 items visible
+        y = self.HEADER_HEIGHT + 2
+        for i, item in enumerate(items[:10]):  # Show up to 10 items
             self._draw_text(item[:28], 8, y, Colors.WHITE)
-            y += 16
+            y += 10  # Final squeeze to fit 0. Exit
 
         self._draw_footer(footer if footer else "Press key to select")
 
@@ -411,36 +406,32 @@ class AlfredUI:
 
     def check_key(self):
         """
-        Check for key press (non-blocking).
-
-        Returns:
-            str or None: Key pressed or None
+        Check for key press (non-blocking) using 74HC138 decoder.
         """
-        if not self.rows or not self.cols:
+        if not self.rows_addr or not self.cols:
             return self._check_key_fallback()
 
-        # Scan keyboard matrix
-        for row_idx, row_pin in enumerate(self.rows):
-            # Set current row low
-            row_pin.value(0)
+        # Scan each of the 8 decoder rows
+        for row_idx in range(8):
+            # Set address on A0, A1, A2 (pins 8, 9, 11)
+            self.rows_addr[0].value(row_idx & 0x01)
+            self.rows_addr[1].value((row_idx >> 1) & 0x01)
+            self.rows_addr[2].value((row_idx >> 2) & 0x01)
 
             # Check each column
             for col_idx, col_pin in enumerate(self.cols):
                 if col_pin.value() == 0:  # Key pressed
-                    row_pin.value(1)
-
                     # Debounce
-                    time.sleep_ms(20)
-
-                    key = self.keymap.get((row_idx, col_idx))
-                    if key and key != self._last_key:
-                        self._last_key = key
-                        return key
-
-            row_pin.value(1)
+                    time.sleep_ms(10)
+                    if col_pin.value() == 0:
+                        key = self.keymap.get((row_idx, col_idx))
+                        if key and key != self._last_key:
+                            self._last_key = key
+                            return key
 
         # No key pressed
         if self._last_key:
+            # Simple debounce for release
             self._last_key = None
 
         return None

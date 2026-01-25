@@ -135,6 +135,7 @@ Copy `mcp/claude_code_config.json` to Claude Code config. Servers:
 | File | Use Case |
 |------|----------|
 | `alfred_terminal.py` | Primary interactive CLI |
+| `alfred_chat.py` | Simple chat (Ollama-only, no brain overhead) |
 | `alfred_api_server.py` | REST API server |
 | `variants/alfred_enhanced.py` | Full power mode |
 | `variants/alfred_unified.py` | Web UI + FastAPI |
@@ -204,5 +205,13 @@ OBSERVE → THINK → PLAN → BUILD → EXECUTE → VERIFY → LEARN
 4. **Scaffolding Over Model**: System design matters more than raw AI capability
 5. **Global Butler**: British accent, born in Gary IN, serves humanity worldwide. Wise, concise, slightly sarcastic.
 
+## Instance Status
+
+This is the **Master Development Instance** of ALFRED. Changes here propagate to:
+- **GX_TECH** (`../GX_TECH/`) - Commercial Mai-AI platform (extracts core/ technology)
+- Deployed client instances
+
+**Location**: `C:\Users\danie\Projects\ALFRED_IV-Y-VI\` (canonical master)
+
 ---
-**Author**: Daniel J Rita (BATDAN) | **Entity**: GxEum Technologies / CAMDAN Enterprizes | **Version**: 3.0.0
+**Author**: Daniel J Rita (BATDAN) | **Entity**: GxEum Technologies / CAMDAN Enterprizes | **Version**: 4.0.6
