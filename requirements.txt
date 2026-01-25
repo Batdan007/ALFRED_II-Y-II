@@ -45,8 +45,10 @@ fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 python-multipart>=0.0.9
 
-# Web Crawling
+# Web Crawling & Interaction
 beautifulsoup4>=4.12.0
+ddgs>=6.0.0
+playwright>=1.40.0
 
 # Utilities
 python-dateutil>=2.9.0

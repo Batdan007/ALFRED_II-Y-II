@@ -31,6 +31,19 @@ try:
 except ImportError:
     CAMDAN_AVAILABLE = False
 
+# Graceful import for Web tools (optional dependency)
+try:
+    from .web_tools import (
+        WebSearchTool,
+        WebFetchTool,
+        WebBrowserTool,
+        WebNewsSearchTool,
+        check_web_tools_availability
+    )
+    WEB_TOOLS_AVAILABLE = True
+except ImportError:
+    WEB_TOOLS_AVAILABLE = False
+
 
 class ToolManager:
     """
@@ -114,6 +127,39 @@ class ToolManager:
                     self.logger.info("CAMDAN tool available but service not running")
             except Exception as e:
                 self.logger.warning(f"Could not register CAMDAN tool: {e}")
+
+        # Register Web tools if available
+        if WEB_TOOLS_AVAILABLE:
+            try:
+                availability = check_web_tools_availability()
+                web_tools_registered = 0
+
+                # Always register WebSearchTool if duckduckgo-search is available
+                if availability.get('duckduckgo_search'):
+                    self.register_tool(WebSearchTool())
+                    self.register_tool(WebNewsSearchTool())
+                    web_tools_registered += 2
+                    self.logger.info("Web search tools registered")
+
+                # Register WebFetchTool if httpx and bs4 are available
+                if availability.get('httpx') and availability.get('beautifulsoup4'):
+                    self.register_tool(WebFetchTool())
+                    web_tools_registered += 1
+                    self.logger.info("Web fetch tool registered")
+
+                # Register WebBrowserTool if playwright is available
+                if availability.get('playwright'):
+                    self.register_tool(WebBrowserTool())
+                    web_tools_registered += 1
+                    self.logger.info("Web browser tool registered")
+
+                if web_tools_registered > 0:
+                    self.logger.info(f"Registered {web_tools_registered} web tools")
+                else:
+                    self.logger.info("Web tools available but dependencies not installed")
+
+            except Exception as e:
+                self.logger.warning(f"Could not register web tools: {e}")
 
         self.logger.info(f"Registered {len(self.tools)} tools")
 
