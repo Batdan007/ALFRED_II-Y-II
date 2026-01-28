@@ -3,20 +3,20 @@
     "alfred-brain": {
       "command": "python",
       "args": ["-m", "mcp.alfred_mcp_server"],
-      "cwd": "C:/Users/danie/Projects/ALFRED_II-Y-II",
+      "cwd": "C:/Users/danie/Projects/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "C:/Drive",
-        "PYTHONPATH": "C:/Users/danie/Projects/ALFRED_II-Y-II"
+        "PYTHONPATH": "C:/Users/danie/Projects/ALFRED_IV-Y-VI"
       },
       "description": "ALFRED's persistent memory brain with voice, privacy, and AI orchestration"
     },
     "strix-security": {
       "command": "python",
       "args": ["-m", "mcp.strix_mcp_server"],
-      "cwd": "C:/Users/danie/Projects/ALFRED_II-Y-II",
+      "cwd": "C:/Users/danie/Projects/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "C:/Drive",
-        "PYTHONPATH": "C:/Users/danie/Projects/ALFRED_II-Y-II",
+        "PYTHONPATH": "C:/Users/danie/Projects/ALFRED_IV-Y-VI",
         "STRIX_LLM": "ollama/dolphin-mixtral:8x7b"
       },
       "description": "Strix AI-powered security testing and vulnerability scanning"

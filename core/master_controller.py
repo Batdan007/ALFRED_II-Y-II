@@ -1,14 +1,14 @@
 """
-ALFRED-PRIME Master Controller
+ALFRED_IV-Y-VI Master Controller
 Provides elite control capabilities over all ALFRED_SYSTEMS instances.
 
 HIERARCHY:
-- ALFRED-PRIME (II-Y-II): Top tier - BATDAN only - Full control & audit
-- ALFRED_UBX: Second tier - President of ALFRED_SYSTEMS - Ecosystem control
+- ALFRED_IV-Y-VI (II-Y-II): Top tier - BATDAN only - Full control & audit
+- ALFRED_IV-Y-VI: Second tier - President of ALFRED_SYSTEMS - Ecosystem control
 - ALFRED_ULTIMATE: Third tier - Internal company use with clearance
 
 Author: Daniel J Rita (BATDAN)
-License: Proprietary - ALFRED-PRIME Exclusive
+License: Proprietary - ALFRED_IV-Y-VI Exclusive
 """
 
 import os
@@ -51,7 +51,7 @@ class ALFREDInstance:
 
 class MasterController:
     """
-    Master Controller for ALFRED-PRIME.
+    Master Controller for ALFRED_IV-Y-VI.
 
     Provides:
     - Registration and discovery of ALFRED instances
@@ -74,31 +74,31 @@ class MasterController:
         self.audit_log: List[Dict[str, Any]] = []
 
         # BATDAN authentication (simple for now, can be enhanced)
-        self.master_key = os.getenv("ALFRED_PRIME_KEY", self._generate_master_key())
+        self.master_key = os.getenv("ALFRED_IV-Y-VI_KEY", self._generate_master_key())
 
         # Default ALFRED_SYSTEMS paths
         self.default_paths = {
-            "ALFRED_UBX": "C:\\Users\\danie\\Projects\\ALFRED_SYSTEMS\\ALFRED_UBX",
+            "ALFRED_IV-Y-VI": "C:\\Users\\danie\\Projects\\ALFRED_SYSTEMS\\ALFRED_IV-Y-VI",
             "ALFRED_ULTIMATE": "C:\\Users\\danie\\Projects\\ALFRED_SYSTEMS\\Alfred_Ultimate",
-            "ALFRED_PRIME": "C:\\Users\\danie\\Projects\\ALFRED_II-Y-II"
+            "ALFRED_IV-Y-VI": "C:\\Users\\danie\\Projects\\ALFRED_IV-Y-VI"
         }
 
         # Register known instances
         self._register_default_instances()
-        self.logger.info("ALFRED-PRIME Master Controller initialized")
+        self.logger.info("ALFRED_IV-Y-VI Master Controller initialized")
 
     def _generate_master_key(self) -> str:
         """Generate a master key based on BATDAN's identity."""
-        identity = "Daniel J Rita BATDAN ALFRED-PRIME"
+        identity = "Daniel J Rita BATDAN ALFRED_IV-Y-VI"
         return hashlib.sha256(identity.encode()).hexdigest()[:32]
 
     def _register_default_instances(self):
         """Register known ALFRED instances."""
-        # ALFRED-PRIME (self)
+        # ALFRED_IV-Y-VI (self)
         self.register_instance(ALFREDInstance(
-            name="ALFRED-PRIME",
+            name="ALFRED_IV-Y-VI",
             tier=ALFREDTier.PRIME,
-            path=self.default_paths.get("ALFRED_PRIME", ""),
+            path=self.default_paths.get("ALFRED_IV-Y-VI", ""),
             status="active",
             last_seen=datetime.now().isoformat(),
             capabilities=[
@@ -109,11 +109,11 @@ class MasterController:
             owner="BATDAN"
         ))
 
-        # ALFRED_UBX
+        # ALFRED_IV-Y-VI
         self.register_instance(ALFREDInstance(
-            name="ALFRED_UBX",
+            name="ALFRED_IV-Y-VI",
             tier=ALFREDTier.UBX,
-            path=self.default_paths.get("ALFRED_UBX", ""),
+            path=self.default_paths.get("ALFRED_IV-Y-VI", ""),
             status="registered",
             capabilities=[
                 "ecosystem_control", "policy_enforcement", "mcp_servers",
@@ -370,7 +370,7 @@ class MasterController:
             "action": action,
             "details": details,
             "target": target,
-            "controller": "ALFRED-PRIME"
+            "controller": "ALFRED_IV-Y-VI"
         }
         self.audit_log.append(entry)
         self.logger.info(f"[AUDIT] {action}: {details}")
@@ -393,13 +393,13 @@ class MasterController:
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                    ALFRED SYSTEMS HIERARCHY                        ║
 ╠═══════════════════════════════════════════════════════════════════╣
-║  TIER 1: ★ ALFRED-PRIME (II-Y-II) ★                               ║
+║  TIER 1: ★ ALFRED_IV-Y-VI (II-Y-II) ★                               ║
 ║          Master Controller | BATDAN Only | Unrestricted            ║
 ║          - Full audit & control of all instances                   ║
 ║          - Security tools, bug bounty, penetration testing         ║
-║          - Can modify ALFRED_UBX code/policies                     ║
+║          - Can modify ALFRED_IV-Y-VI code/policies                     ║
 ╠───────────────────────────────────────────────────────────────────╣
-║  TIER 2: ALFRED_UBX                                                ║
+║  TIER 2: ALFRED_IV-Y-VI                                                ║
 ║          President of ALFRED_SYSTEMS | Ecosystem Control           ║
 ║          - Policy enforcement across all lower tiers               ║
 ║          - MCP servers, privacy controller                         ║

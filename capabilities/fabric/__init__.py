@@ -1,5 +1,5 @@
 """
-Fabric AI Patterns Integration for ALFRED_UBX
+Fabric AI Patterns Integration for ALFRED_IV-Y-VI
 Provides 243+ expert AI patterns for enhanced assistance
 """
 

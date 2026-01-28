@@ -1,5 +1,5 @@
 """
-RAG (Retrieval Augmented Generation) System for ALFRED_UBX
+RAG (Retrieval Augmented Generation) System for ALFRED_IV-Y-VI
 Combines web crawling, vector knowledge base, and LLM for intelligent research
 """
 

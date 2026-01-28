@@ -341,7 +341,7 @@ class AlfredTerminal:
         """Show Alfred's greeting with personal recognition"""
         self.console.print()
         self.console.print(Panel(
-            "[bold magenta]★ ALFRED-PRIME ★[/bold magenta] v3.0.0\n"
+            "[bold magenta]★ ALFRED_IV-Y-VI ★[/bold magenta] v3.0.0\n"
             "[bold yellow]BATDAN's Elite Personal AI[/bold yellow]\n"
             "[dim]The Distinguished American Butler AI (with British Accent)[/dim]\n"
             "[dim]Master Controller | Full Sensory Integration | Unrestricted Mode[/dim]",
@@ -390,13 +390,12 @@ class AlfredTerminal:
         self.running = True
         self.show_greeting()
 
-        # Check if auto-listen mode requested (alfred --listen)
+        # Auto-start always-listen mode (voice-first experience)
+        # User can say "stop listening" or use /stop_listening to switch to typing
         import os
-        if os.environ.get('ALFRED_AUTO_LISTEN') == '1':
-            self.console.print("\n[cyan]Starting always-listen mode...[/cyan]")
+        if os.environ.get('ALFRED_NO_LISTEN') != '1' and self.ears:
+            self.console.print("\n[cyan]Starting always-listen mode... (say 'stop listening' to type instead)[/cyan]")
             self._cmd_always_listen("")
-            # Clear the env var so it doesn't restart on loop
-            os.environ.pop('ALFRED_AUTO_LISTEN', None)
 
         while self.running:
             try:
@@ -449,7 +448,7 @@ class AlfredTerminal:
             '/stop_listening': self._cmd_stop_listening,
             '/joe': self._cmd_joe_dog,
             '/status': self._cmd_status,
-            # ALFRED-PRIME Master Control
+            # ALFRED_IV-Y-VI Master Control
             '/hierarchy': self._cmd_hierarchy,
             '/control': self._cmd_control,
             '/instances': self._cmd_instances,
@@ -1430,7 +1429,7 @@ class AlfredTerminal:
 
     def _cmd_status(self, command: str):
         """Show complete system status including sensory capabilities"""
-        table = Table(title="👑 ALFRED-PRIME Elite System Status", box=box.ROUNDED)
+        table = Table(title="👑 ALFRED_IV-Y-VI Elite System Status", box=box.ROUNDED)
         table.add_column("Component", style="cyan")
         table.add_column("Status", style="green")
         table.add_column("Details", style="dim")
@@ -1857,26 +1856,26 @@ class AlfredTerminal:
             self.console.print(f"[red]Error loading hierarchy: {e}[/red]")
 
     def _cmd_control(self, command: str):
-        """Master control interface for ALFRED-PRIME"""
+        """Master control interface for ALFRED_IV-Y-VI"""
         try:
             from core.master_controller import MasterController
             controller = MasterController(brain=self.brain)
             parts = command.split()
             if len(parts) < 2:
                 self.console.print(Panel(
-                    "[bold magenta]★ ALFRED-PRIME Master Control ★[/bold magenta]\n\n"
+                    "[bold magenta]★ ALFRED_IV-Y-VI Master Control ★[/bold magenta]\n\n"
                     "[cyan]Commands:[/cyan]\n"
                     "  /control scan <instance>    - Security scan an instance\n"
                     "  /control status <instance>  - Get instance status\n"
                     "  /control audit              - View audit log\n"
                     "  /control grant <user> <tier> - Grant clearance\n\n"
-                    "[dim]Available instances: ALFRED-PRIME, ALFRED_UBX, ALFRED_ULTIMATE[/dim]",
+                    "[dim]Available instances: ALFRED_IV-Y-VI[/dim]",
                     title="Master Control", border_style="magenta"
                 ))
                 return
             subcommand = parts[1].lower()
             if subcommand == "scan":
-                target = parts[2] if len(parts) > 2 else "ALFRED_UBX"
+                target = parts[2] if len(parts) > 2 else "ALFRED_IV-Y-VI"
                 results = controller.scan_instance(target)
                 self.console.print(f"\n[bold]Security Scan: {target}[/bold]")
                 for check in results.get("checks", []):

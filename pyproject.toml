@@ -45,7 +45,7 @@ alfred-voice = "alfred_voice_mode:main"
 alfred-setup = "setup_voice:main"
 
 [project.urls]
-Homepage = "https://github.com/BATDAN/ALFRED_II-Y-II"
+Homepage = "https://github.com/Batdan007/ALFRED_IV-Y-VI"
 
 [tool.setuptools]
 packages = ["alfred", "core", "capabilities", "ai", "tools", "agents"]

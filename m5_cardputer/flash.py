@@ -14,7 +14,7 @@ Requirements:
 - USB cable connected to M5 Cardputer
 
 Author: Daniel J. Rita (BATDAN)
-https://github.com/Batdan007/ALFRED_UBX
+https://github.com/Batdan007/ALFRED_IV-Y-VI
 """
 
 import os
@@ -44,7 +44,7 @@ def print_banner():
 /_/   \\_\\_____|_|   |_| \\_\\_____|____/  |_____|____/ \\____|_____|
 {Colors.NC}
 {Colors.YELLOW}  M5 Cardputer Flash Tool - The AI That Never Forgets{Colors.NC}
-{Colors.BLUE}  https://github.com/Batdan007/ALFRED_UBX{Colors.NC}
+{Colors.BLUE}  https://github.com/Batdan007/ALFRED_IV-Y-VI{Colors.NC}
 """)
 
 

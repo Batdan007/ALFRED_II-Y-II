@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# ALFRED_UBX Installation Script for Linux/macOS/WSL
+# ALFRED_IV-Y-VI Installation Script for Linux/macOS/WSL
 # AI Assistant with Persistent Memory & Adaptive Learning
 # Author: Daniel J. Rita aka BATDAN007
-# https://github.com/Batdan007/ALFRED_UBX
+# https://github.com/Batdan007/ALFRED_IV-Y-VI
 #
 # Usage: ./install.sh [options]
 # Options:
@@ -46,13 +46,13 @@ show_banner() {
     echo -e "${CYAN}/_/   \\_\\_____|_|   |_| \\_\\_____|____/   \\___/|____/_/\\_\\${NC}"
     echo ""
     echo -e "${WHITE}  AI Assistant with Persistent Memory & Adaptive Learning${NC}"
-    echo -e "${GRAY}  https://github.com/Batdan007/ALFRED_UBX${NC}"
+    echo -e "${GRAY}  https://github.com/Batdan007/ALFRED_IV-Y-VI${NC}"
     echo ""
 }
 
 # Show help
 show_help() {
-    echo "ALFRED_UBX Installation Script"
+    echo "ALFRED_IV-Y-VI Installation Script"
     echo ""
     echo "Usage: ./install.sh [options]"
     echo ""
@@ -280,7 +280,7 @@ create_env_file() {
         success "Created .env from .env.example"
     else
         cat > ".env" << 'EOF'
-# ALFRED_UBX Configuration
+# ALFRED_IV-Y-VI Configuration
 # Fill in your API keys below
 
 # AI Provider API Keys (at least one required)
@@ -340,7 +340,7 @@ create_systemd_service() {
     
     cat > "alfred.service" << EOF
 [Unit]
-Description=ALFRED_UBX AI Assistant
+Description=ALFRED_IV-Y-VI AI Assistant
 After=network.target
 
 [Service]
@@ -393,7 +393,7 @@ show_instructions() {
         echo ""
     fi
     
-    echo -e "${GRAY}Documentation: https://github.com/Batdan007/ALFRED_UBX${NC}"
+    echo -e "${GRAY}Documentation: https://github.com/Batdan007/ALFRED_IV-Y-VI${NC}"
     echo ""
 }
 

@@ -1,6 +1,6 @@
 # Active Projects
 
-## ALFRED_II-Y-II (Primary)
+## ALFRED_IV-Y-VI (Primary)
 **Status**: Active Development
 **Description**: The main ALFRED repository with patent-pending Brain technology
 

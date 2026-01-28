@@ -11,7 +11,7 @@ Choose the method for your platform:
 **Option 1: Add to PATH (Recommended)**
 ```batch
 # Add launchers directory to PATH
-setx PATH "%PATH%;C:\ALFRED_UBX\launchers"
+setx PATH "%PATH%;C:\ALFRED_IV-Y-VI\launchers"
 
 # Restart terminal and test
 alfred --version
@@ -19,7 +19,7 @@ alfred --version
 
 **Option 2: Copy to System32**
 ```batch
-copy C:\ALFRED_UBX\launchers\alfred.bat C:\Windows\System32\alfred.bat
+copy C:\ALFRED_IV-Y-VI\launchers\alfred.bat C:\Windows\System32\alfred.bat
 alfred --version
 ```
 
@@ -28,7 +28,7 @@ alfred --version
 **Option 1: Add to PATH**
 ```powershell
 # Add launchers directory to PATH
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\ALFRED_UBX\launchers", "User")
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\ALFRED_IV-Y-VI\launchers", "User")
 
 # Restart PowerShell and test
 alfred --version
@@ -118,8 +118,8 @@ alfred --version  # Should print: Alfred v3.0.0-ultimate
 - Linux/macOS: `which python3`
 
 ### "Module alfred not found"
-- Run from Alfred root directory: `cd C:\ALFRED_UBX` (Windows) or `cd ~/alfred` (Linux/macOS)
-- Or set PYTHONPATH: `export PYTHONPATH=/path/to/ALFRED_UBX`
+- Run from Alfred root directory: `cd C:\ALFRED_IV-Y-VI` (Windows) or `cd ~/alfred` (Linux/macOS)
+- Or set PYTHONPATH: `export PYTHONPATH=/path/to/ALFRED_IV-Y-VI`
 
 ### Permission Denied (Linux/macOS)
 ```bash
@@ -131,7 +131,7 @@ sudo chmod +x /usr/local/bin/alfred
 ### Windows
 ```batch
 # If using PATH method
-setx PATH "%PATH:;C:\ALFRED_UBX\launchers=%"
+setx PATH "%PATH:;C:\ALFRED_IV-Y-VI\launchers=%"
 
 # If using System32 method
 del C:\Windows\System32\alfred.bat

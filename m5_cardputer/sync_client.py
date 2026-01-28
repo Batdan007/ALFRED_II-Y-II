@@ -1,7 +1,7 @@
 """
 Sync Client - WiFi Sync for ALFRED Edge
 ========================================
-Handles communication with main ALFRED_UBX brain server.
+Handles communication with main ALFRED_IV-Y-VI brain server.
 Uploads collected data and downloads assigned tasks.
 
 Protocol:
@@ -33,7 +33,7 @@ except ImportError:
 
 class SyncClient:
     """
-    Client for syncing ALFRED Edge data to main ALFRED_UBX server.
+    Client for syncing ALFRED Edge data to main ALFRED_IV-Y-VI server.
 
     The server runs alfred_sync_server.py on the main ALFRED installation,
     exposing REST endpoints for edge devices to upload data.

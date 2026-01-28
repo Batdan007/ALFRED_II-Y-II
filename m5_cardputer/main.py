@@ -47,7 +47,7 @@ CONFIG = {
     "device_type": "m5_cardputer",
     "worker_id": None,  # Set during setup
     "worker_name": None,
-    "sync_server": "http://192.168.1.100:8765",  # ALFRED_UBX sync server
+    "sync_server": "http://192.168.1.100:8765",  # ALFRED_IV-Y-VI sync server
     "wifi_ssid": None,
     "wifi_password": None,
     "auto_sync_interval": 300,  # 5 minutes when connected
@@ -362,7 +362,7 @@ class AlfredEdge:
 
     def sync_to_server(self):
         """
-        Sync all pending data to ALFRED_UBX server.
+        Sync all pending data to ALFRED_IV-Y-VI server.
 
         This is called automatically when WiFi is available,
         or can be triggered manually.

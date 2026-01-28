@@ -3,20 +3,20 @@
     "alfred-brain": {
       "command": "python3",
       "args": ["-m", "mcp.alfred_mcp_server"],
-      "cwd": "/home/user/ALFRED_UBX",
+      "cwd": "/home/user/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "/home/user/.alfred",
-        "PYTHONPATH": "/home/user/ALFRED_UBX"
+        "PYTHONPATH": "/home/user/ALFRED_IV-Y-VI"
       },
       "description": "ALFRED's persistent memory brain with voice, privacy, and AI orchestration"
     },
     "camdan-engineering": {
       "command": "python3",
       "args": ["-m", "mcp.camdan_mcp_server"],
-      "cwd": "/home/user/ALFRED_UBX",
+      "cwd": "/home/user/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "/home/user/.alfred",
-        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "PYTHONPATH": "/home/user/ALFRED_IV-Y-VI",
         "CAMDAN_API_URL": "http://localhost:8001"
       },
       "description": "CAMDAN engineering system for building codes, cost estimation, and compliance",
@@ -25,10 +25,10 @@
     "strix-security": {
       "command": "python3",
       "args": ["-m", "mcp.strix_mcp_server"],
-      "cwd": "/home/user/ALFRED_UBX",
+      "cwd": "/home/user/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "/home/user/.alfred",
-        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "PYTHONPATH": "/home/user/ALFRED_IV-Y-VI",
         "STRIX_LLM": "ollama/dolphin-mixtral:8x7b"
       },
       "description": "Strix AI-powered security testing and vulnerability scanning",
@@ -37,10 +37,10 @@
     "dontlookup-dvbs2": {
       "command": "python3",
       "args": ["-m", "mcp.dontlookup_mcp_server"],
-      "cwd": "/home/user/ALFRED_UBX",
+      "cwd": "/home/user/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "/home/user/.alfred",
-        "PYTHONPATH": "/home/user/ALFRED_UBX"
+        "PYTHONPATH": "/home/user/ALFRED_IV-Y-VI"
       },
       "description": "DontLookUp DVB-S2 satellite communication parser",
       "disabled": false
@@ -48,10 +48,10 @@
     "caipe-agents": {
       "command": "python3",
       "args": ["-m", "mcp.caipe_mcp_server"],
-      "cwd": "/home/user/ALFRED_UBX",
+      "cwd": "/home/user/ALFRED_IV-Y-VI",
       "env": {
         "ALFRED_HOME": "/home/user/.alfred",
-        "PYTHONPATH": "/home/user/ALFRED_UBX",
+        "PYTHONPATH": "/home/user/ALFRED_IV-Y-VI",
         "A2A_TRANSPORT": "slim"
       },
       "description": "CAIPE multi-agent system (GitHub, ArgoCD, Jira, Slack, PagerDuty, etc.)",

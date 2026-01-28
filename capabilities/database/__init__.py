@@ -1,5 +1,5 @@
 """
-Database Tools for ALFRED_UBX
+Database Tools for ALFRED_IV-Y-VI
 Professional database operations, migrations, and SQL generation
 """
 

@@ -5,7 +5,7 @@
 #define MyAppName "ALFRED"
 #define MyAppVersion "3.0.0"
 #define MyAppPublisher "GxEum Technologies / CAMDAN Enterprizes"
-#define MyAppURL "https://github.com/Batdan007/ALFRED_II-Y-II"
+#define MyAppURL "https://github.com/Batdan007/ALFRED_IV-Y-VI"
 #define MyAppExeName "ALFRED.exe"
 
 [Setup]

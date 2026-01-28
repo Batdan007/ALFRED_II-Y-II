@@ -1,4 +1,4 @@
-# ALFRED_UBX Installation Guide
+# ALFRED_IV-Y-VI Installation Guide
 
 AI Assistant with Persistent Memory & Adaptive Learning
 
@@ -204,8 +204,8 @@ rm alfred alfred.bat alfred.ps1 alfred.service
 
 ## Support
 
-- **Repository**: https://github.com/Batdan007/ALFRED_UBX
-- **Issues**: https://github.com/Batdan007/ALFRED_UBX/issues
+- **Repository**: https://github.com/Batdan007/ALFRED_IV-Y-VI
+- **Issues**: https://github.com/Batdan007/ALFRED_IV-Y-VI/issues
 
 ---
 *Created by Daniel J. Rita aka BATDAN007*

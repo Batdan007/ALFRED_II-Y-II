@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    ALFRED_UBX Installation Script for Windows
+    ALFRED_IV-Y-VI Installation Script for Windows
 .DESCRIPTION
-    Cross-platform installer for ALFRED_UBX - AI Assistant with Persistent Memory
+    Cross-platform installer for ALFRED_IV-Y-VI - AI Assistant with Persistent Memory
     Author: Daniel J. Rita aka BATDAN007
 .NOTES
     Version: 2.0.0
@@ -36,7 +36,7 @@ function Show-Banner {
     Write-Host "/_/   \_\_____|_|   |_| \_\_____|____/   \___/|____/_/\_\" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  AI Assistant with Persistent Memory & Adaptive Learning" -ForegroundColor White
-    Write-Host "  https://github.com/Batdan007/ALFRED_UBX" -ForegroundColor DarkGray
+    Write-Host "  https://github.com/Batdan007/ALFRED_IV-Y-VI" -ForegroundColor DarkGray
     Write-Host ""
 }
 
@@ -187,7 +187,7 @@ function New-EnvFile {
     }
     
     $envContent = @"
-# ALFRED_UBX Configuration
+# ALFRED_IV-Y-VI Configuration
 # Copy this file to .env and fill in your API keys
 
 # AI Provider API Keys (at least one required)
@@ -303,7 +303,7 @@ function Show-Instructions {
     Write-Host "   # Or use the launcher:" -ForegroundColor Gray
     Write-Host "   .\alfred.bat" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Documentation: https://github.com/Batdan007/ALFRED_UBX" -ForegroundColor DarkGray
+    Write-Host "Documentation: https://github.com/Batdan007/ALFRED_IV-Y-VI" -ForegroundColor DarkGray
     Write-Host ""
 }
 

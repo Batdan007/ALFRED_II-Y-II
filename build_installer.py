@@ -28,7 +28,7 @@ APP_NAME = "ALFRED"
 APP_VERSION = "3.0.0"
 APP_PUBLISHER = "GxEum Technologies / CAMDAN Enterprizes"
 APP_AUTHOR = "Daniel J Rita (BATDAN)"
-APP_URL = "https://github.com/Batdan007/ALFRED_II-Y-II"
+APP_URL = "https://github.com/Batdan007/ALFRED_IV-Y-VI"
 
 # Paths
 ROOT_DIR = Path(__file__).parent

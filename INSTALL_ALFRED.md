@@ -14,7 +14,7 @@ Created by Daniel J Rita (BATDAN) | GxEum Technologies
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/Batdan007/ALFRED_II-Y-II.git ALFRED
+git clone https://github.com/Batdan007/ALFRED_IV-Y-VI.git ALFRED
 cd ALFRED
 ```
 

@@ -1,7 +1,7 @@
 # Alfred Global Launcher (Windows PowerShell)
 #
 # Installation:
-#   1. Add C:\ALFRED_UBX\launchers to your PATH environment variable
+#   1. Add C:\ALFRED_IV-Y-VI\launchers to your PATH environment variable
 #   2. Set-ExecutionPolicy RemoteSigned (if not already done)
 #   3. alfred  (from any directory)
 #

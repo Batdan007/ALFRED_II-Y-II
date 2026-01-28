@@ -18,7 +18,7 @@ Quick guide to deploying the beta to Railway (backend) and Vercel (frontend).
 
 1. Go to https://railway.app/new
 2. Click "Deploy from GitHub repo"
-3. Select your `ALFRED_II-Y-II` repository
+3. Select your `ALFRED_IV-Y-VI` repository
 4. Railway will auto-detect Python and use the `Procfile`
 
 ### Environment Variables (Railway Dashboard)
@@ -120,7 +120,7 @@ If you want payments:
 
 ### Backend
 ```bash
-cd ALFRED_II-Y-II
+cd ALFRED_IV-Y-VI
 pip install -r requirements.txt
 python -m maiai_platform.server
 # Runs at http://localhost:8000
@@ -128,7 +128,7 @@ python -m maiai_platform.server
 
 ### Frontend
 ```bash
-cd ALFRED_II-Y-II/web
+cd ALFRED_IV-Y-VI/web
 npm install
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 npm run dev

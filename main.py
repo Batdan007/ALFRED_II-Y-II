@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-ALFRED_UBX - AI Assistant with Persistent Memory & Adaptive Learning
+ALFRED_IV-Y-VI - AI Assistant with Persistent Memory & Adaptive Learning
 
 Main entry point for the ALFRED AI assistant.
 Supports multiple AI providers (Anthropic, OpenAI, Groq) with persistent
 memory and adaptive learning capabilities.
 
 Author: Daniel J. Rita aka BATDAN007
-https://github.com/Batdan007/ALFRED_UBX
+https://github.com/Batdan007/ALFRED_IV-Y-VI
 
 Usage:
     python main.py              # Start interactive CLI
@@ -417,7 +417,7 @@ def run_server():
         return
     
     app = FastAPI(
-        title="ALFRED_UBX API",
+        title="ALFRED_IV-Y-VI API",
         description="AI Assistant with Persistent Memory & Adaptive Learning",
         version="1.0.0"
     )
@@ -449,7 +449,7 @@ def run_server():
     @app.get("/")
     async def root():
         return {
-            "name": "ALFRED_UBX",
+            "name": "ALFRED_IV-Y-VI",
             "version": "1.0.0",
             "provider": alfred.provider_name,
             "status": "online"
@@ -497,7 +497,7 @@ def run_setup():
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="ALFRED_UBX - AI Assistant with Persistent Memory",
+        description="ALFRED_IV-Y-VI - AI Assistant with Persistent Memory",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

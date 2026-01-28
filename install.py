@@ -165,7 +165,7 @@ class Installer:
 {Colors.CYAN}/_/   \\_\\_____|_|   |_| \\_\\_____|____/   \\___/|____/_/\\_\\{Colors.NC}
 
 {Colors.WHITE}  AI Assistant with Persistent Memory & Adaptive Learning{Colors.NC}
-{Colors.GRAY}  https://github.com/Batdan007/ALFRED_UBX{Colors.NC}
+{Colors.GRAY}  https://github.com/Batdan007/ALFRED_IV-Y-VI{Colors.NC}
 """
         print(banner)
     
@@ -602,7 +602,7 @@ class Installer:
             self.success("Created .env from .env.example")
             return
         
-        env_content = """# ALFRED_UBX Configuration
+        env_content = """# ALFRED_IV-Y-VI Configuration
 # Fill in your API keys below
 
 # AI Provider API Keys (at least one required)
@@ -722,7 +722,7 @@ python alfred_terminal.py "$@"
 {Colors.YELLOW}   alfred --voice{Colors.NC}
 """)
         
-        print(f"{Colors.GRAY}Documentation: https://github.com/Batdan007/ALFRED_UBX{Colors.NC}")
+        print(f"{Colors.GRAY}Documentation: https://github.com/Batdan007/ALFRED_IV-Y-VI{Colors.NC}")
         print()
     
     def run(self) -> int:

@@ -2,7 +2,7 @@
 REM Alfred Global Launcher (Windows)
 REM
 REM Installation:
-REM   1. Add C:\ALFRED_UBX\launchers to your PATH environment variable
+REM   1. Add C:\ALFRED_IV-Y-VI\launchers to your PATH environment variable
 REM   2. alfred  (from any directory)
 REM
 REM Or copy to a directory already in PATH:

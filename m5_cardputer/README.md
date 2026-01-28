@@ -61,7 +61,7 @@ pip install esptool mpremote
 ### 3. Flash ALFRED Edge
 
 ```bash
-cd ALFRED_UBX/m5_cardputer
+cd ALFRED_IV-Y-VI/m5_cardputer
 python flash.py
 ```
 
@@ -76,7 +76,7 @@ The flash tool will:
 On your PC/server that runs ALFRED:
 
 ```bash
-cd ALFRED_UBX
+cd ALFRED_IV-Y-VI
 python alfred_sync_server.py --port 8765
 ```
 
@@ -161,7 +161,7 @@ Configuration is stored in `/config.json` on the device:
 
 ## Server Integration
 
-ALFRED Edge syncs with the main ALFRED_UBX system via REST API:
+ALFRED Edge syncs with the main ALFRED_IV-Y-VI system via REST API:
 
 ### Endpoints
 
@@ -269,7 +269,7 @@ m5_cardputer/
 For development without hardware:
 
 ```bash
-cd ALFRED_UBX/m5_cardputer
+cd ALFRED_IV-Y-VI/m5_cardputer
 python main.py
 ```
 
@@ -296,7 +296,7 @@ This software is part of the ALFRED-UBX system, which includes patent-pending te
 ## Author
 
 **Daniel J. Rita (BATDAN)**
-- Repository: https://github.com/Batdan007/ALFRED_UBX
+- Repository: https://github.com/Batdan007/ALFRED_IV-Y-VI
 - Contact: danieljrita@hotmail.com
 
 ## License

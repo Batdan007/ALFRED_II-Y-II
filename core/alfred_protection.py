@@ -2,7 +2,7 @@
 ALFRED_J_RITA Protection Wrapper
 In Memory of Joe Dog - Guardian of Ethical AI
 
-This module wraps the ALFRED_J_RITA client for easy integration into ALFRED_UBX.
+This module wraps the ALFRED_J_RITA client for easy integration into ALFRED_IV-Y-VI.
 
 JOE_DOG_MEMORIAL: In memory of Joe Dog - protector of all that is good
 ALFRED_BRAIN_CORE: Central protection and monitoring system
@@ -34,7 +34,7 @@ class AlfredProtectionWrapper:
     """
     Wrapper around ALFRED_J_RITA protection client.
 
-    Provides simplified interface for integrating protection into ALFRED_UBX.
+    Provides simplified interface for integrating protection into ALFRED_IV-Y-VI.
     """
 
     JOE_DOG_MEMORIAL = "In memory of Joe Dog - the kindest soul"
