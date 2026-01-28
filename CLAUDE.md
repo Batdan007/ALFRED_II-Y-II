@@ -8,11 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies (Python 3.11 or 3.12 ONLY - 3.13+ breaks faster-whisper)
 py -3.11 -m pip install -r requirements.txt
 
-# Optional: Install as editable package
+# Install as editable package (recommended)
 pip install -e .
 
 # Run ALFRED
-python alfred_terminal.py          # Primary CLI
+alfred                             # CLI command (after pip install -e .)
+python alfred_terminal.py          # Primary CLI (direct)
 python alfred_terminal.py --voice  # With voice
 ```
 
@@ -29,6 +30,14 @@ pip install -e ".[voice]"
 pip install -e ".[full]"
 ```
 
+### Requirements Files
+| File | Use Case |
+|------|----------|
+| `requirements.txt` | Core dependencies (minimal) |
+| `requirements_voice.txt` | Voice features (TTS/STT) |
+| `requirements_sensory.txt` | Full sensory suite (voice + vision + speaker ID) |
+| `requirements-railway.txt` | Railway.app deployment |
+
 ## Running Tests
 
 ```bash
@@ -36,6 +45,12 @@ pip install -e ".[full]"
 python tests/test_core.py
 python tests/test_alfred_voice.py
 python tests/test_security_agent.py
+
+# Run all tests (PowerShell)
+Get-ChildItem tests/*.py | ForEach-Object { python $_.FullName }
+
+# Run all tests (Bash)
+for f in tests/*.py; do python "$f"; done
 ```
 
 ## Joe Dog's Rule (INVIOLABLE)
@@ -214,4 +229,4 @@ This is the **Master Development Instance** of ALFRED. Changes here propagate to
 **Location**: `C:\Users\danie\Projects\ALFRED_IV-Y-VI\` (canonical master)
 
 ---
-**Author**: Daniel J Rita (BATDAN) | **Entity**: GxEum Technologies / CAMDAN Enterprizes | **Version**: 4.0.6
+**Author**: Daniel J Rita (BATDAN) | **Entity**: GxEum Technologies / CAMDAN Enterprizes
