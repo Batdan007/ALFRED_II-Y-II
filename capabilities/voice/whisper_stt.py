@@ -20,6 +20,37 @@ except ImportError:
     WhisperModel = None
 
 
+def find_microphone() -> Optional[int]:
+    """
+    Find a real microphone device (not Stereo Mix or Sound Mapper).
+
+    Returns:
+        Device index or None if not found
+    """
+    try:
+        devices = sd.query_devices()
+        avoid = ['stereo mix', 'what u hear', 'loopback', 'sound mapper']
+
+        # Priority 1: Actual microphone devices
+        for idx, dev in enumerate(devices):
+            name = dev['name'].lower()
+            if any(bad in name for bad in avoid):
+                continue
+            if dev['max_input_channels'] > 0 and ('microphone' in name or 'mic array' in name):
+                return idx
+
+        # Priority 2: Any input device not in avoid list
+        for idx, dev in enumerate(devices):
+            name = dev['name'].lower()
+            if any(bad in name for bad in avoid):
+                continue
+            if dev['max_input_channels'] > 0:
+                return idx
+    except Exception:
+        pass
+    return None
+
+
 class WhisperSTT:
     """
     Whisper-based Speech-to-Text for ALFRED
@@ -35,7 +66,8 @@ class WhisperSTT:
     def __init__(self,
                  model_size: str = None,
                  device: str = None,
-                 compute_type: str = None):
+                 compute_type: str = None,
+                 input_device: int = None):
         """
         Initialize Whisper STT
 
@@ -43,11 +75,21 @@ class WhisperSTT:
             model_size: Whisper model (tiny.en, base.en, small.en, medium.en)
             device: cuda or cpu
             compute_type: float16 (GPU) or float32 (CPU)
+            input_device: Audio input device index (auto-detects microphone if None)
         """
         self.logger = logging.getLogger(__name__)
         self.model = None
         self.model_size = model_size or self.DEFAULT_MODEL
         self.device = device or self.DEFAULT_DEVICE
+
+        # Auto-detect microphone (NEVER use Stereo Mix)
+        if input_device is not None:
+            self.input_device = input_device
+        else:
+            self.input_device = find_microphone()
+            if self.input_device is not None:
+                dev_name = sd.query_devices(self.input_device)['name']
+                self.logger.info(f"Using microphone: {dev_name} (device {self.input_device})")
 
         # Auto-select compute type
         if compute_type:
@@ -120,7 +162,8 @@ class WhisperSTT:
 
         try:
             with sd.InputStream(samplerate=self.SAMPLE_RATE, channels=1,
-                              callback=callback, blocksize=int(self.SAMPLE_RATE * chunk_duration)):
+                              device=self.input_device, callback=callback,
+                              blocksize=int(self.SAMPLE_RATE * chunk_duration)):
 
                 if duration:
                     # Fixed duration recording
@@ -219,12 +262,20 @@ class WhisperSTT:
 
     def get_status(self) -> Dict[str, Any]:
         """Get STT status"""
+        mic_name = None
+        if self.input_device is not None:
+            try:
+                mic_name = sd.query_devices(self.input_device)['name']
+            except Exception:
+                pass
         return {
             'available': self.available,
             'engine': 'whisper',
             'model': self.model_size,
             'device': self.device,
-            'compute_type': self.compute_type
+            'compute_type': self.compute_type,
+            'input_device': self.input_device,
+            'microphone': mic_name
         }
 
 
