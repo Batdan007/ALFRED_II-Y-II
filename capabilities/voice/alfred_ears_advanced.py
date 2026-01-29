@@ -170,6 +170,40 @@ class AlfredEarsAdvanced:
             self.logger.warning("⚠️ resemblyzer not available. Install: pip install resemblyzer")
             self.logger.info("💡 Speaker recognition will use basic audio fingerprinting instead")
 
+    def _find_real_microphone(self) -> int:
+        """Find a real microphone device (not Stereo Mix)"""
+        try:
+            mic_names = sr.Microphone.list_microphone_names()
+
+            # Priority keywords
+            microphone_keywords = ['microphone', 'mic array', 'mic input']
+            avoid_keywords = ['stereo mix', 'what u hear', 'loopback']
+
+            candidates = []
+            for i, name in enumerate(mic_names):
+                name_lower = name.lower()
+
+                # Skip loopback/stereo mix devices
+                if any(avoid in name_lower for avoid in avoid_keywords):
+                    continue
+
+                # Prefer devices with "microphone" in name
+                is_mic = any(kw in name_lower for kw in microphone_keywords)
+                candidates.append((i, name, is_mic))
+
+            # Sort: microphones first, then by index
+            candidates.sort(key=lambda x: (not x[2], x[0]))
+
+            if candidates:
+                device_idx, device_name, _ = candidates[0]
+                self.logger.info(f"Auto-selected microphone: {device_name} (device {device_idx})")
+                return device_idx
+
+        except Exception as e:
+            self.logger.debug(f"Auto-detect microphone failed: {e}")
+
+        return None  # Use default
+
     def _initialize_microphone(self):
         """Initialize the microphone with optimized settings (for Google Speech fallback)"""
         if not SPEECH_RECOGNITION_AVAILABLE or not self.recognizer:
@@ -177,11 +211,13 @@ class AlfredEarsAdvanced:
             return
 
         try:
-            self.microphone = sr.Microphone()
+            # Auto-detect real microphone (avoid Stereo Mix)
+            device_index = self._find_real_microphone()
+            self.microphone = sr.Microphone(device_index=device_index)
 
             # Adjust for ambient noise with multiple samples
             with self.microphone as source:
-                self.logger.info("🎤 Calibrating for ambient noise (Google Speech fallback)...")
+                self.logger.info("🎤 Calibrating for ambient noise...")
                 self.recognizer.adjust_for_ambient_noise(source, duration=2)
 
                 # Set energy threshold for better noise filtering
@@ -427,7 +463,7 @@ class AlfredEarsAdvanced:
             return None
 
         try:
-            self.logger.info("👂 Listening (VOSK offline)...")
+            self.logger.debug("👂 Listening (VOSK offline)...")
             result = self.vosk_recognizer.listen_once(timeout=timeout)
 
             if result and result.get('text'):
@@ -464,7 +500,7 @@ class AlfredEarsAdvanced:
             return None
 
         try:
-            self.logger.info("👂 Listening (Google Speech - online)...")
+            self.logger.debug("👂 Listening (Google Speech - online)...")
 
             with self.microphone as source:
                 # Listen
@@ -480,7 +516,7 @@ class AlfredEarsAdvanced:
 
             if identify_speaker and self.known_voices:
                 speaker, speaker_confidence = self.identify_speaker(audio)
-                self.logger.info(f"🎤 Speaker: {speaker} (confidence: {speaker_confidence:.2f})")
+                self.logger.debug(f"🎤 Speaker: {speaker} (confidence: {speaker_confidence:.2f})")
 
             # Only process if speaker is BATDAN or unknown (to allow initial training)
             if speaker != "BATDAN" and speaker != "Unknown" and self.known_voices.get('BATDAN'):
@@ -488,7 +524,7 @@ class AlfredEarsAdvanced:
                 return None
 
             # Recognize speech
-            self.logger.info("🔄 Processing speech (Google)...")
+            self.logger.debug("🔄 Processing speech (Google)...")
             text = self.recognizer.recognize_google(audio)
 
             self.logger.info(f"✅ Heard (Google): '{text}'")

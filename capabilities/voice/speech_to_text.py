@@ -91,7 +91,7 @@ class AlfredEars:
         timeout = timeout or self.listen_timeout
 
         try:
-            self.logger.info("👂 Listening...")
+            self.logger.debug("👂 Listening...")
 
             with self.microphone as source:
                 # Listen
@@ -102,10 +102,10 @@ class AlfredEars:
                 )
 
             # Recognize (using Google Speech Recognition - free and local processing)
-            self.logger.info("🔄 Processing speech...")
+            self.logger.debug("🔄 Processing speech...")
             text = self.recognizer.recognize_google(audio)
 
-            self.logger.info(f"✅ Heard: '{text}'")
+            self.logger.debug(f"✅ Heard: '{text}'")
             return text
 
         except sr.WaitTimeoutError:
@@ -138,7 +138,7 @@ class AlfredEars:
             return
 
         self.listening = True
-        self.logger.info("👂 Continuous listening active (say 'stop listening' to stop)")
+        self.logger.debug("👂 Continuous listening active")
 
         try:
             while self.listening:
@@ -172,7 +172,7 @@ class AlfredEars:
             return
 
         self.wake_word_mode = True
-        self.logger.info(f"👂 Listening for wake word: {self.WAKE_WORDS}")
+        self.logger.debug(f"👂 Listening for wake word: {self.WAKE_WORDS}")
 
         try:
             while self.wake_word_mode:

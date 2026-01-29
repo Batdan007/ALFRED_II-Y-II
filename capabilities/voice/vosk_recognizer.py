@@ -122,6 +122,10 @@ class VoskRecognizer:
         if not self._check_dependencies():
             return
 
+        # Auto-detect real microphone if using default (which might be Stereo Mix)
+        if self.config.device is None:
+            self._auto_detect_microphone()
+
         # Initialize model
         self._initialize_model()
 
@@ -143,6 +147,45 @@ class VoskRecognizer:
             return False
 
         return True
+
+    def _auto_detect_microphone(self):
+        """Auto-detect a real microphone (not Stereo Mix)"""
+        if not SOUNDDEVICE_AVAILABLE:
+            return
+
+        try:
+            # Get all input devices
+            devices = sd.query_devices()
+
+            # Priority: look for actual microphones, avoid Stereo Mix
+            microphone_keywords = ['microphone', 'mic array', 'mic input']
+            avoid_keywords = ['stereo mix', 'what u hear', 'loopback']
+
+            candidates = []
+            for i, dev in enumerate(devices):
+                if dev['max_input_channels'] > 0:
+                    name_lower = dev['name'].lower()
+
+                    # Skip loopback/stereo mix devices
+                    if any(avoid in name_lower for avoid in avoid_keywords):
+                        continue
+
+                    # Prefer devices with "microphone" in name
+                    is_mic = any(kw in name_lower for kw in microphone_keywords)
+                    candidates.append((i, dev['name'], is_mic))
+
+            # Sort: microphones first, then by index
+            candidates.sort(key=lambda x: (not x[2], x[0]))
+
+            if candidates:
+                device_idx, device_name, _ = candidates[0]
+                self.config.device = device_idx
+                self.logger.info(f"Auto-selected microphone: {device_name} (device {device_idx})")
+            else:
+                self.logger.warning("No suitable microphone found, using system default")
+
+        except Exception as e:
+            self.logger.debug(f"Auto-detect microphone failed: {e}")
 
     def _initialize_model(self):
         """Initialize VOSK model"""
@@ -284,7 +327,7 @@ class VoskRecognizer:
                 device=self.config.device,
                 callback=self._audio_callback
             ):
-                self.logger.debug("Listening...")
+                # Listening debug message removed - too verbose
 
                 import time
                 start_time = time.time()

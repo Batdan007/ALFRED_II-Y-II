@@ -179,11 +179,15 @@ class AlfredTerminal:
             sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
         # Create handlers with UTF-8 encoding
+        # File gets everything (INFO+), terminal only shows warnings/errors
         file_handler = logging.FileHandler('alfred_terminal.log', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+
         stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setLevel(logging.WARNING)  # Quiet terminal - only warnings/errors
 
         logging.basicConfig(
-            level=logging.INFO,
+            level=logging.DEBUG,  # Capture all, handlers filter
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[file_handler, stream_handler]
         )
@@ -602,8 +606,8 @@ class AlfredTerminal:
                     self.console.print(Markdown(response))
                     self.console.print()
 
-                    # Speak if voice enabled
-                    self._safe_speak(response, VoicePersonality.INFORMATION)
+                    # NOTE: Alfred does NOT read responses aloud
+                    # He only speaks when HE has something to say (greetings, warnings, alerts)
 
                 else:
                     self.console.print("[red]All AI backends failed. Please check configuration.[/red]")
@@ -695,8 +699,8 @@ class AlfredTerminal:
                 self.console.print(Markdown(response))
                 self.console.print()
 
-                # Speak if enabled
-                self._safe_speak(response, VoicePersonality.INFORMATION)
+                # NOTE: Alfred does NOT read responses aloud
+                # He only speaks when HE has something to say (greetings, warnings, alerts)
 
         except Exception as e:
             self.logger.error(f"Tool conversation error: {e}")
